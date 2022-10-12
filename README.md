@@ -6,9 +6,10 @@ MindDiffusion is an open source toolbox containing a series of classic and new S
 
 ## Model List
 
-- DDPM
-
-- Stable diffusion
+- [DDPM: Denoising Difussion Probalisitic Model](https://proceedings.neurips.cc/paper/2020/file/4c5bcfec8584af0d967f1ab10179ca4b-Paper.pdf)
+- [Guided Diffusion: Diffusion Models Beat GANS on Image Synthesis](http://arxiv.org/abs/2105.05233)
+- [Stable Diffusion: High-resolution image synthesis with latent diffusion models](https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper.html)
+- [Imagen: Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding](https://arxiv.org/abs/2205.11487)
 
 ## Contributing
 
