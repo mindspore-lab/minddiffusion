@@ -1,5 +1,4 @@
 # Mind Diffusion
-A toolbox of diffusion models based on MindSpore
 
 ## Introduction
 
