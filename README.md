@@ -10,8 +10,8 @@ Cornerstone:
 
 ### Vision
 #### Image generation
-1. **Improved diffusion** [Improved denoising diffusion probabilistic models](https://proceedings.mlr.press/v139/nichol21a.html) Feb 2021, from OpenAI.  (PMLR 139:8162-8171, 2021.)
-2. **Guided diffusion** [Diffusion models beat gans on image synthesis](https://proceedings.neurips.cc/paper/2021/hash/49ad23d1ec9fa4bd8d77d02681df5cfa-Abstract.html) Apr 2021, from OpenAI. (NeurIPS 2021)
+1. **Improved diffusion** [Improved denoising diffusion probabilistic models](https://proceedings.mlr.press/v139/nichol21a.html) Feb 2021, from OpenAI, PMLR 2021.
+2. **Guided diffusion** [Diffusion models beat gans on image synthesis](https://proceedings.neurips.cc/paper/2021/hash/49ad23d1ec9fa4bd8d77d02681df5cfa-Abstract.html) Apr 2021, from OpenAI, NeurIPS 2021.
 3. ADM, May 2021, from OpenAI, NeurIPS 2021.
 4. FastDPM, May 2021, from NVIDIA, ICLR Workshop 2021.
 5. LSGM, Jun 2021, from NVIDIA, NeurIPS 2021.
