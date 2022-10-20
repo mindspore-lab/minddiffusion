@@ -1,4 +1,4 @@
-# Awoesome Diffusion Models
+# Awesome Diffusion Models
 
 ## Introduction
 
