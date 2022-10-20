@@ -36,7 +36,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 |**Natural language**||||||
 |Diffusion-LM|[Diffusion-LM Improves Controllable Text Generation](https://arxiv.org/abs/2205.14217)|Stanford University|May 2022|||
 |**Audio - Audio Generation**|||||
-|DiffWave|[DiffWave: A Versatile Diffusion Model for Audio Synthesis](https://arxiv.org/abs/2009.09761)|UCSD & Nvidia & Baidu|Jun 2020|ISMIR 2021||
+|DiffWave|[DiffWave: A Versatile Diffusion Model for Audio Synthesis](https://arxiv.org/abs/2009.09761)|Nvidia & Baidu|Jun 2020|ISMIR 2021||
 |WaveGrad|[WaveGrad: Estimating Gradients for Waveform Generation](https://arxiv.org/abs/2009.00713)|Google Brain|Sep 2020|ICLR 2021||
 |Symbolic Music Generation|[Symbolic Music Generation with Diffusion Models](https://arxiv.org/abs/2103.16091)|Google Brain|Mar 2021|ISMIR 2021||
 |DiffSinger|[DiffSinger: Singing Voice Synthesis via Shallow Diffusion Mechanism](https://arxiv.org/abs/2105.02446)|Zhejiang University|May 2021|AAAI 2022||
@@ -48,7 +48,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 |**Audio -  Audio Conversion**|||||
 |DiffVC|[Diffusion-Based Voice Conversion with Fast Maximum Likelihood Sampling Scheme](https://arxiv.org/abs/2109.13821)|Huawei Noah|Sep 2021|ICLR 2022||
 |**Audio -  Audio Enhancement**||||
-|NU-Wave|[NU-Wave: A Diffusion Probabilistic Model for Neural Audio Upsampling](https://arxiv.org/abs/2104.02321),[💡](https://github.com/mindslab-ai/nuwave)|MINDSLAB & Seoul National University|Apr 2021|Interspeech 2021| 
+|NU-Wave|[NU-Wave: A Diffusion Probabilistic Model for Neural Audio Upsampling](https://arxiv.org/abs/2104.02321),[💡](https://github.com/mindslab-ai/nuwave)|MINDSLAB|Apr 2021|Interspeech 2021| 
 |CDiffSE|[Conditional Diffusion Probabilistic Model for Speech Enhancement](https://arxiv.org/abs/2202.05256), [💡](https://github.com/neillu23/cdiffuse)|CMU|Feb 2022|IEEE 2022||
 |**Audio -  Text to Speech**|||||
 |Grad-TTS|[Grad-TTS: A Diffusion Probabilistic Model for Text-to-Speech](https://arxiv.org/abs/2111.11755)|Huawei Noah|May 2021||
