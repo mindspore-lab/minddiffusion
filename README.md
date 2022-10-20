@@ -26,7 +26,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 <td>To do</td>
 </tr>
 <tr>
-<td colspan=6 align="centre"><b>Vision - Image generation<b></td>
+<td colspan=6 align="center"><b>Vision - Image generation<b></td>
 </tr>
 <tr>
 <td>Improved diffusion</td>
@@ -85,7 +85,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 <td></td>
 </tr>
 <tr>
-<td colspan=6 align="centre"><b>Vision -  Text to Image<b></td>
+<td colspan=6 align="center"><b>Vision -  Text to Image<b></td>
 </tr>
 <tr>
 <td>Stable Diffusion/LDM</td>
@@ -152,7 +152,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 <td></td>
 </tr>
 <tr>
-<td colspan=6 align="centre"><b>Vision - Image Editing</b></td>
+<td colspan=6 align="center"><b>Vision - Image Editing</b></td>
 </tr>
 <tr>
 <td>SDEdit</td>
@@ -171,7 +171,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 <td></td>
 </tr>
 <tr>
-<td colspan=6 align="centre"><b>Vision -  Video Genereation</bs></td>
+<td colspan=6 align="center"><b>Vision -  Video Genereation</bs></td>
 </tr>
 <tr>
 <td>Video diffusion models</td>
@@ -206,7 +206,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 <td></td>
 </tr>
 <tr>
-<td colspan=6 align="centre"><b>Natural language</b></td>
+<td colspan=6 align="center"><b>Natural language</b></td>
 </tr>
 <tr>
 <td>Diffusion-LM</td>
@@ -217,7 +217,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 <td></td>
 </tr>
 <tr>
-<td colspan=6 align="centre"><b>Audio - Audio Generation</b></td>
+<td colspan=6 align="center"><b>Audio - Audio Generation</b></td>
 </tr>
 <tr>
 <td>DiffWave</td>
@@ -292,7 +292,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 <td></td>
 </tr>
 <tr>
-<td colspan=6 align="centre"><b>Audio -  Audio Conversion</b></td>
+<td colspan=6 align="center"><b>Audio -  Audio Conversion</b></td>
 </tr>
 <tr>
 <td>DiffVC</td>
@@ -303,7 +303,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 <td></td>
 </tr>
 <tr>
-<td colspan=6 align="centre"><b>Audio -  Audio Enhancement</b></td>
+<td colspan=6 align="center"><b>Audio -  Audio Enhancement</b></td>
 </tr>
 <tr>
 <td>NU-Wave</td>
@@ -322,7 +322,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 <td></td>
 </tr>
 <tr>
-<td colspan=6 align="centre"><b>Audio -  Text to Speech</b></td>
+<td colspan=6 align="center"><b>Audio -  Text to Speech</b></td>
 </tr>
 <tr>
 <td>Grad-TTS</td>
@@ -358,6 +358,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 </tr>
 </tbody>
 </table>
+
 
 
 ## Contributing
