@@ -22,7 +22,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 |Dalle-2|[Hierarchical Text-conditional Image Generation with Clip Latents](https://arxiv.org/abs/2204.06125)|OpenAI|Apr 2022||
 |KNN Diffusion|[Image Generation via Large-Scale Retrieval](https://arxiv.org/abs/2204.02849)|Meta AI|Apr 2022||
 |Imagen|[Imagen: Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding](https://arxiv.org/abs/2205.11487)|Google Brain|May 2022||
-|LAION-RDM|Text-Guided Synthesis of Artistic Images with Retrieval-Augmented Diffusion Models|Ludwig-Maximilian University of Munich.|Jul 2022||
+|LAION-RDM|Text-Guided Synthesis of Artistic Images with Retrieval-Augmented Diffusion Models|Ludwig-Maximilian University of Munich|Jul 2022||
 |DreamBooth|Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation|Google Research|Aug 2022||
 |DreamFusion|[DreamFusion: Text-to-3D using 2D Diffusion](https://arxiv.org/abs/2209.14988)|Google Research|29 Sep 2022||
 |**Vision - Image Editing**|
