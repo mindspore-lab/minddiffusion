@@ -48,13 +48,13 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 |**Audio -  Audio Conversion**|||||
 |DiffVC|[Diffusion-Based Voice Conversion with Fast Maximum Likelihood Sampling Scheme](https://arxiv.org/abs/2109.13821)|Huawei Noah|Sep 2021|ICLR 2022||
 |**Audio -  Audio Enhancement**||||
-|NU-Wave|[NU-Wave: A Diffusion Probabilistic Model for Neural Audio Upsampling](https://arxiv.org/abs/2104.02321),[💡](https://github.com/mindslab-ai/nuwave)|MINDSLAB|Apr 2021|Interspeech 2021| 
-|CDiffSE|[Conditional Diffusion Probabilistic Model for Speech Enhancement](https://arxiv.org/abs/2202.05256), [💡](https://github.com/neillu23/cdiffuse)|CMU|Feb 2022|IEEE 2022||
+|NU-Wave|[NU-Wave: A Diffusion Probabilistic Model for Neural Audio Upsampling](https://arxiv.org/abs/2104.02321)|MINDSLAB|Apr 2021|Interspeech 2021| 
+|CDiffSE|[Conditional Diffusion Probabilistic Model for Speech Enhancement](https://arxiv.org/abs/2202.05256)|CMU|Feb 2022|IEEE 2022||
 |**Audio -  Text to Speech**|||||
 |Grad-TTS|[Grad-TTS: A Diffusion Probabilistic Model for Text-to-Speech](https://arxiv.org/abs/2111.11755)|Huawei Noah|May 2021||
-|EdiTTS|[EdiTTS: Score-based Editing for Controllable Text-to-Speech](https://arxiv.org/abs/2110.02584.pdf), [💡](https://github.com/neosapience/EdiTTS)|Yale University|Oct 2021||
-|DiffGAN-TTS|[DiffGAN-TTS: High-Fidelity and Efficient Text-to-Speech with Denoising Diffusion GANs](https://arxiv.org/abs/2201.11972),|Tencent AI Lab|Jan 2022||
-|Diffsound| [Diffsound: Discrete Diffusion Model for Text-to-sound Generation](https://arxiv.org/abs/2207.09983), [💡](https://github.com/yangdongchao/text-to-sound-synthesis-demo)|Tencent AI Lab|Jul 2022||
+|EdiTTS|[EdiTTS: Score-based Editing for Controllable Text-to-Speech](https://arxiv.org/abs/2110.02584.pdf)|Yale University|Oct 2021||
+|DiffGAN-TTS|[DiffGAN-TTS: High-Fidelity and Efficient Text-to-Speech with Denoising Diffusion GANs](https://arxiv.org/abs/2201.11972)|Tencent AI Lab|Jan 2022||
+|Diffsound| [Diffsound: Discrete Diffusion Model for Text-to-sound Generation](https://arxiv.org/abs/2207.09983)|Tencent AI Lab|Jul 2022||
 
 ## Contributing
 
