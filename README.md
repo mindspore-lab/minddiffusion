@@ -4,6 +4,13 @@
 
 This repo is an open source collection of a series of classic and new SoTA diffusion models including DDPM and stable diffusion based on MindSpore. Source codes and model weights are coming soon. 
 
+## Coming soon
+This list of model are implemented in MindSpore run on Ascend.
+| Model Name | Task | 
+|---|---|
+| opt-glide | Vision - Text To Image|
+|wukong-huahua| Vision - Text To Image|
+
 ## Model List
 <table>
 <thead>
@@ -363,4 +370,4 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 
 ## Contributing
 
-We welcom all contributions to improve MindDiffusion! Please fork this repo and submit a pull request to contribute your diffusion models.
+We welcom all contributions to improve this project! Please fork this repo and submit a pull request to contribute your diffusion models.
