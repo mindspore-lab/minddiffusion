@@ -1,19 +1,13 @@
 # OPT-GLIDE
 ## 模型介绍
-OPT-GLIDE是华为昇腾计算携手武汉人工智能研究院、中科院自动化所基于昇腾昇思全栈开发的中文文生图大模型（紫东.太初系列模型之一），该模型采用了AIGC领域当前非常流行的扩散模型（Diffusion Model）技术，代码和预训练模型权重均对外进行开源，开发者可使用本仓进行以文生图任务的体验。
+OPT-GLIDE是**华为昇腾计算**携手**武汉人工智能研究院**、**中科院自动化所**基于昇腾昇思全栈开发的中文文生图大模型（紫东.太初系列模型之一），该模型采用了AIGC领域当前非常流行的扩散模型（Diffusion Model）技术，代码和预训练模型权重均对外进行开源，开发者可使用本仓进行以文生图任务的体验。
 
 ## 环境要求
 
-1. **安装 CANN 5.1.RC2 **  \
+1. **安装 CANN（5.1.RC2 版本）及其对应的驱动（Driver）和 固件（firmware）**  \
     前往昇腾社区下载安装包：\
     <https://www.hiascend.com/software/cann/commercial> \
-    以arm + 欧拉的系统配置为例( **x86的系统请选择x86的包** ) \
-    安装驱动： \
-    ./A800-9000-npu-driver_21.0.4_linux-aarch64.run --full \
-    安装固件： \
-    ./A800-9000-npu-firmware_1.80.22.2.220.run --full \
-    安装cann-toolkit包: \
-    ./Ascend-cann-toolkit_5.0.4_linux-aarch64.run --full
+    以arm + 欧拉的系统配置为例( **x86的系统请选择x86的包** ) 
 
 2. **安装 MindSpore 1.8 版本** \
     前往MindSpore官网,按照教程安装对应版本即可，当前为1.6.1,链接如下: \
