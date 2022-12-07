@@ -1,6 +1,6 @@
-# OPT-GLIDE
+# Taichu-GLIDE
 ## 模型介绍
-OPT-GLIDE是**华为昇腾计算**携手**武汉人工智能研究院**、**中科院自动化所**基于昇腾昇思全栈开发的中文文生图大模型（紫东.太初系列模型之一），该模型采用了AIGC领域当前非常流行的扩散模型（Diffusion Model）技术，代码和预训练模型权重均对外进行开源，开发者可使用本仓进行以文生图任务的体验。
+Taichu-GLIDE是**华为昇腾计算**携手**武汉人工智能研究院**、**中科院自动化所**基于昇腾昇思全栈开发的中文文生图大模型（紫东.太初系列模型之一），该模型采用了AIGC领域当前非常流行的扩散模型（Diffusion Model）技术，代码和预训练模型权重均对外进行开源，开发者可使用本仓进行以文生图任务的体验。
 
 
 ![一幅画着柯基的油画](https://user-images.githubusercontent.com/17930313/206085057-e079d90a-3313-4b9a-9e1c-f67a0594245d.png) 
@@ -23,7 +23,7 @@ OPT-GLIDE是**华为昇腾计算**携手**武汉人工智能研究院**、**中�
 ## 快速体验
 
 ### 推理
-- 请先[点击此处](https://download.mindspore.cn/toolkits/minddiffusion/opt-glide/)下载ckpt文件
+- 请先[点击此处](https://download.mindspore.cn/toolkits/minddiffusion/Taichu-GLIDE/)下载ckpt文件
 - 在data/prompts.txt添加自己想要生成的prompt
 - 修改 scripts/run_infer.sh中相关路径及配置
 ```bash
