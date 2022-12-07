@@ -25,7 +25,7 @@ OPT-GLIDE是**华为昇腾计算**携手**武汉人工智能研究院**、**中�
 ### 推理
 - 请先[点击此处](https://download.mindspore.cn/toolkits/minddiffusion/opt-glide/)下载ckpt文件
 - 在data/prompts.txt添加自己想要生成的prompt
-- 修改 scripts/run_infer相关路径及配置
+- 修改 scripts/run_infer.sh中相关路径及配置
 ```bash
 bash bash scripts/run_infer.sh
 ```
