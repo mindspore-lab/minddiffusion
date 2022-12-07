@@ -8,7 +8,7 @@ This repo is an open source collection of a series of classic and new SoTA diffu
 These models are implemented in MindSpore and run on Ascend.
 | Model Name | Task | Link |
 |---|---|---|
-|Taichu-GLIDE | Vision - Text To Image|[Link](./vision/opt-glide/) |
+|Taichu-GLIDE | Vision - Text To Image|[Link](./vision/Taichu-GLIDE/) |
 |wukong-huahua| Vision - Text To Image|[Link](./vision/wukong-huahua/) |
 
 ## Awesome Model List
