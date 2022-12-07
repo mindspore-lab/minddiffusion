@@ -18,7 +18,6 @@ import numpy as np
 from omegaconf import OmegaConf
 from PIL import Image
 from itertools import islice
-from einops import rearrange
 import mindspore as ms
 
 from ldm.util import instantiate_from_config
