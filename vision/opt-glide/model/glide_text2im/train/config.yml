@@ -1,0 +1,44 @@
+model:
+  name: 
+  num_hiddens: 256
+  num_residual_layers: 4
+  num_residual_hiddens: 256
+
+  downsample: 8
+  embedding_dim: 256
+  num_embeddings: 8192
+  commitment_cost: 0.25
+  decay: 0.99
+
+dataset:
+  name: Custom
+  img_size: 256
+  batchsize: 16
+  buffersize: 5
+  repeatsize: 1
+  num_workers: 2
+  data_dir: ./datasets/txt2img/mscoco/images
+  train_ids_path: ./datasets/txt2img/mscoco/cocodata_zh/COCO_trainids_vqvae.json
+  valid_ids_path: ./datasets/txt2img/mscoco/cocodata_zh/COCO_validids_vqvae.json
+
+loss:
+  name: nMSE
+
+train:
+  pretrain: ~
+  ckpt: ~
+  std_out: True
+
+  lr: 0.0012
+  num_epochs: 10
+  num_workers: 2
+  sink_size: 1000
+  loss_scale: 4096
+  optimize: ADAM
+  keep_batchnorm_fp32: True
+  exp_name: VQVAEwBN_MSCOCO
+  exp_path: experiments/
+
+  num_log_steps: 10
+  num_save_steps: 20000
+  num_test_steps: 5000

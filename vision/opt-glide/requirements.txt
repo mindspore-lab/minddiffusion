@@ -1,0 +1,7 @@
+ipython
+regex
+sentencepiece
+blobfile
+toolz
+tqdm
+pathlib2
