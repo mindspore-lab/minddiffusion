@@ -2,8 +2,17 @@
 ## 模型介绍
 OPT-GLIDE是**华为昇腾计算**携手**武汉人工智能研究院**、**中科院自动化所**基于昇腾昇思全栈开发的中文文生图大模型（紫东.太初系列模型之一），该模型采用了AIGC领域当前非常流行的扩散模型（Diffusion Model）技术，代码和预训练模型权重均对外进行开源，开发者可使用本仓进行以文生图任务的体验。
 
-![一幅画着柯基的油画](https://user-images.githubusercontent.com/17930313/206085057-e079d90a-3313-4b9a-9e1c-f67a0594245d.png) 
-<center>**一幅画着柯基的油画**</center>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://user-images.githubusercontent.com/17930313/206085057-e079d90a-3313-4b9a-9e1c-f67a0594245d.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">一幅画着柯基的油画</div>
+</center>
+
 
 
 ## 环境要求
