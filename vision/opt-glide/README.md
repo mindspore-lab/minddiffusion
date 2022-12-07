@@ -7,10 +7,10 @@ OPT-GLIDE是**华为昇腾计算**携手**武汉人工智能研究院**、**中�
 1. **安装 CANN（5.1.RC2 版本）及其对应的驱动（driver）和 固件（firemware）**  \
     前往昇腾社区下载安装包：\
     <https://www.hiascend.com/software/cann/commercial> \
-    以arm + 欧拉的系统配置为例( **x86的系统请选择x86的包** ) 
+    以arm + 欧拉的系统配置为例 (x86的系统请选择x86的包) 
 
 2. **安装 MindSpore 1.8 版本** \
-    前往MindSpore官网,按照教程安装对应版本即可，当前为1.6.1,链接如下: \
+    前往MindSpore官网,按照教程安装对应版本即可，当前为1.8, 链接如下: \
     <https://www.mindspore.cn/install>
 
 3. **安装 requirements 依赖** \
