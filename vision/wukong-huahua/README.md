@@ -12,7 +12,7 @@
 
 ## Wukong-Huahua 悟空画画模型
 
-Wukong-Huahua是基于扩散模型的中文文生图大模型，由华为诺亚团队携手中软分布式并行实验室，昇腾计算产品部联合开发。它基于[Wukong dataset](https://wukong-dataset.github.io/wukong-dataset/)训练得到，并使用昇思框架实现。
+Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺亚团队**携手**中软分布式并行实验室**，**昇腾计算产品部**联合开发。它基于[Wukong dataset](https://wukong-dataset.github.io/wukong-dataset/)训练得到，并使用昇思框架实现。
 
 ## 环境要求
 
