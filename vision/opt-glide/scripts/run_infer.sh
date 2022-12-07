@@ -15,9 +15,9 @@
 # limitations under the License.
 # ============================================================================
 
-output_path=/home/liuqiyuan/glide/glide/output/
-ckpt_path=/home/liuqiyuan/glide/glide/pretraind_models/
-model_config_path=/home/liuqiyuan/glide/glide/configs/infer_model_config_glide.yaml
+output_path=/glide/glide/output/
+ckpt_path=/glide/pretraind_models/
+model_config_path=/glide/configs/infer_model_config_glide.yaml
 is_chinese=True
 denoise_steps=60
 super_res_step=27
@@ -26,7 +26,7 @@ tokenizer_model="cog-pretrain.model"
 gen_ckpt="glide_gen.ckpt"
 super_ckpt="glide_super_res.ckpt"
 srgan_ckpt="srgan.ckpt"
-prompts_file=/home/liuqiyuan/glide/glide/dataset/prompts.txt
+prompts_file=./data/prompts.txt
 
 python  src/txt2img.py \
         --output_path=$output_path \

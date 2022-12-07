@@ -57,9 +57,9 @@ do
     mkdir -p ${output_dir:?}/${task_name:?}/rank_$i
     echo "start training for rank $RANK_ID, device $DEVICE_ID"
     nohup python -u src/train_txt2img.py \
-    --data_path=/home/liuqiyuan/tk_models/models/glide/dataset/ \
-    --output_path=/home/liuqiyuan/tk_models/models/glide/output/ \
-    --pretrained_model_path=/home/liuqiyuan/tk_models/models/glide/pretraind_models/ \
+    --data_path=/glide/dataset/ \
+    --output_path=/glide/output/ \
+    --pretrained_model_path=/glide/pretraind_models/ \
     --is_super_res=True \
     --is_chinese=True \
     --use_parallel=True \
