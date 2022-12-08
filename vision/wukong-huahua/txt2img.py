@@ -18,7 +18,6 @@ import numpy as np
 from omegaconf import OmegaConf
 from PIL import Image
 from itertools import islice
-from einops import rearrange
 import mindspore as ms
 
 from ldm.util import instantiate_from_config
@@ -150,7 +149,7 @@ def main():
     parser.add_argument(
         "--n_samples",
         type=int,
-        default=4,
+        default=8,
         help="how many samples to produce for each given prompt. A.k.a. batch size",
     )
     parser.add_argument(
@@ -185,8 +184,7 @@ def main():
     parser.add_argument(
         "--seed",
         type=int,
-        # default=42,
-        default=None,
+        default=42,
         help="the seed (for reproducible sampling)",
     )
     parser.add_argument(
@@ -197,14 +195,14 @@ def main():
         default="autocast"
     )
     opt = parser.parse_args()
+    
     device_id = int(os.getenv("DEVICE_ID", 0))
-    ms.context.set_context(mode=ms.context.GRAPH_MODE,
-                        device_target="Ascend",
-                        device_id=device_id,
-                        max_device_memory="30GB",
-                        save_graphs=False,
-                        save_graphs_path="graph/"
-                        )
+    ms.context.set_context(
+        mode=ms.context.GRAPH_MODE,
+        device_target="Ascend",
+        device_id=device_id,
+        max_device_memory="30GB"
+    )
     
     seed_everything(opt.seed)
 
@@ -238,8 +236,6 @@ def main():
         start_code = stdnormal((opt.n_samples, 4, opt.H // 8, opt.W // 8))
 
     all_samples = list()
-    from time import time as time
-    last = time()
     for n in range(opt.n_iter):
         for prompts in data:
             uc = None
@@ -273,9 +269,6 @@ def main():
             if not opt.skip_grid:
                 all_samples.append(x_samples_ddim_numpy)
 
-            cur = time()
-            print(cur - last)
-            last = cur
         print(f"Your samples are ready and waiting for you here: \n{outpath} \n"
           f" \nEnjoy.")
         
