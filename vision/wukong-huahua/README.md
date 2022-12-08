@@ -17,12 +17,12 @@ Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺�
 
 - 硬件
   - 准备Ascend处理器搭建硬件环境
-- 框架
-  - [Mindspore](https://www.mindspore.cn/ "Mindspore") >= 1.9
+- 依赖
+  - [MindSpore](https://www.mindspore.cn/ "MindSpore") >= 1.9
   - 其他Python包需求请参考[requirements.txt](./requirements.txt)
 - 如需查看详情，请参考如下资源
-  - [Mindspore 教程](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)
-  - [Mindspore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
+  - [MindSpore 教程](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)
+  - [MindSpore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
 
 ## 快速开始
 

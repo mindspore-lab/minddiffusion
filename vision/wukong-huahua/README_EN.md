@@ -11,18 +11,18 @@
 
 ## Wukong-Huahua
 
-Wukong-Huahua is a diffusion-based model that perfoms text-to-image task, which was developed by the **Huawei Noah's Ark Lab** in cooperation with the Distributed & Parallel Software Lab and **Ascend Product Develop Unit**. It was trained on [Wukong dataset](https://wukong-dataset.github.io/wukong-dataset/)  and implemented by Mindspore.
+Wukong-Huahua is a diffusion-based model that perfoms text-to-image task, which was developed by the **Huawei Noah's Ark Lab** in cooperation with the Distributed & Parallel Software Lab and **Ascend Product Develop Unit**. It was trained on [Wukong dataset](https://wukong-dataset.github.io/wukong-dataset/)  and implemented by MindSpore.
 
 ## Environment requirements
 
 - Hardware
   - Ascend processor
-- Framework
-  - [Mindspore](https://www.mindspore.cn/ "Mindspore") >= 1.9
+- Framework & Libraries
+  - [MindSpore](https://www.mindspore.cn/ "MindSpore") >= 1.9
   - install remaining python packages according to [requirements.txt](./requirements.txt)
 - Tutorialm
-  - [Mindspore Tutorial](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)
-  - [Mindspore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
+  - [MindSpore Tutorial](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)
+  - [MindSpore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
 
 ## Quick Start
 
