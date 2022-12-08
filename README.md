@@ -9,7 +9,7 @@ These models are implemented in MindSpore and run on Ascend.
 | Model Name | Task | Link |
 |---|---|---|
 |Taichu-GLIDE | Vision - Text To Image|[Link](./vision/Taichu-GLIDE/) |
-|wukong-huahua| Vision - Text To Image|[Link](./vision/wukong-huahua/) |
+|Wukong-Huahua| Vision - Text To Image|[Link](./vision/wukong-huahua/) |
 
 ## Awesome Model List
 <table>
