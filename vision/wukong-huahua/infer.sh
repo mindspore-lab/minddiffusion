@@ -1,3 +1,5 @@
+
+#!/bin/bash
 # Copyright 2022 Huawei Technologies Co., Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-#!/bin/bash
 
 export GLOG_v=3
 export ASCEND_GLOBAL_LOG_LEVEL=3
