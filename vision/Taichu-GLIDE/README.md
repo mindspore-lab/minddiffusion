@@ -33,10 +33,10 @@ bash scripts/run_infer.sh
 
 ```bash
 # 生成阶段分布式训练
-bash scripts/run_gen_finetune_dist.sh [DEVICE_NUM] [VISIABLE_DEVICES(0,1,2,3,4,5,6,7)] [RANK_TABLE_FILE]
+bash scripts/run_gen_finetune_dist.sh /path/hccl_xp_xxxx.json [DEVICE_NUM] [DEVICE_START]
 ```
 
 ```bash
 # 超分阶段分布式训练
-bash scripts/run_super_res_finetune_dist.sh [DEVICE_NUM] [VISIABLE_DEVICES(0,1,2,3,4,5,6,7)] [RANK_TABLE_FILE]
+bash scripts/run_super_res_finetune_dist.sh /path/hccl_xp_xxxx.json [DEVICE_NUM] [DEVICE_START]
 ```
