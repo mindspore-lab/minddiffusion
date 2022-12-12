@@ -54,21 +54,3 @@ class FrozenCLIPEmbedder_ZH(nn.Cell):
         batch_encoding = self.tokenize(text)
         outputs = self.transformer(batch_encoding)
         return outputs
-
-
-if __name__ == '__main__':
-    import pickle
-    from mindspore import load_checkpoint, load_param_into_net
-    data = pickle.load(open('/data1/niuminzhe/stable_diffusion/text_encoder_inout_full.pkl', 'rb'))
-    model = FrozenCLIPEmbedder_ZH()
-    param_dict = load_checkpoint('/data1/niuminzhe/stable_diffusion/clip_text_encoder_ms.ckpt')
-    load_param_into_net(model.transformer, param_dict)
-    encoding, out = model.encode(data['inputs'])
-    encoding_numpy = encoding.asnumpy()
-    out_numpy = out.asnumpy()
-    print(encoding_numpy[0, :])
-    print(data['encode_input'][0, :])
-    print(out_numpy.shape)
-    print(out_numpy[0, 0, :20])
-    print(data['outputs'][0, 0, :20])
-
