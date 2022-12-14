@@ -27,8 +27,8 @@ Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺�
    前往[MindSpore官网](<https://www.mindspore.cn/install>)，按照说明安装。
 
    如需更多帮助，可以参考以下资料\
-    [Mindspore 教程](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)\
-    [Mindspore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
+    [MindSpore 教程](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)\
+    [MindSpore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
 
 3. **第三方依赖**
 
@@ -40,7 +40,7 @@ Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺�
 
 ### 准备checkpoint
 
-下载wukong-huahua预训练参数 [wukong-huahua-ms.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/wukong-huahua-ms.ckpt) 至 wukong-huahua/models/ 目录.
+下载Wukong-Huahua预训练参数 [wukong-huahua-ms.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/wukong-huahua-ms.ckpt) 至 wukong-huahua/models/ 目录.
 
 ### 文图生成
 
