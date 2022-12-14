@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-import mindspore as ms
 import numpy as np
+import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as P
 

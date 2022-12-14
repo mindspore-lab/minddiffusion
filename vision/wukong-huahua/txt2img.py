@@ -12,14 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-import argparse, os
-import cv2
-import numpy as np
-from omegaconf import OmegaConf
+
+import os
+import sys
+import argparse
 from PIL import Image
-from itertools import islice
+from omegaconf import OmegaConf
+
+import numpy as np
 import mindspore as ms
 
+workspace = os.path.dirname(os.path.abspath(__file__))
+print("workspace", workspace, flush=True)
+sys.path.append(workspace)
 from ldm.util import instantiate_from_config
 from ldm.models.diffusion.plms import PLMSSampler
 
@@ -28,11 +33,6 @@ def seed_everything(seed):
     if seed:
         ms.set_seed(seed)
         np.random.seed(seed)
-    
-
-def chunk(it, size):
-    it = iter(it)
-    return iter(lambda: tuple(islice(it, size)), ())
 
 
 def numpy_to_pil(images):
@@ -56,45 +56,34 @@ def load_model_from_config(config, ckpt, verbose=False):
             param_not_load = ms.load_param_into_net(model, param_dict)
             print("param not load:", param_not_load)
     else:
-        print(f"{ckpt} not exist:")
+        print(f"!!!Warning!!!: {ckpt} doesn't exist")
 
     return model
 
-def put_watermark(img, wm_encoder=None):
-    if wm_encoder is not None:
-        img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        img = wm_encoder.encode(img, 'dwtDct')
-        img = Image.fromarray(img[:, :, ::-1])
-    return img
 
-
-def load_replacement(x):
-    try:
-        hwc = x.shape
-        y = Image.open("assets/rick.jpeg").convert("RGB").resize((hwc[1], hwc[0]))
-        y = (np.array(y)/255.0).astype(x.dtype)
-        assert y.shape == x.shape
-        return y
-    except Exception:
-        return x
-    
-    
 def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--prompt",
+        "--data_path",
         type=str,
         nargs="?",
-        default="狗 绘画 写实风格",
+        default="",
         help="the prompt to render"
     )
     parser.add_argument(
-        "--outdir",
+        "--prompt",
         type=str,
         nargs="?",
-        help="dir to write results to",
-        default="outputs/txt2img-samples"
+        default="prompts.txt",
+        help="the prompt to render"
+    )
+    parser.add_argument(
+        "--output_path",
+        type=str,
+        nargs="?",
+        default="output",
+        help="dir to write results to"
     )
     parser.add_argument(
         "--skip_grid",
@@ -111,11 +100,6 @@ def main():
         type=int,
         default=50,
         help="number of ddim sampling steps",
-    )
-    parser.add_argument(
-        "--plms",
-        action='store_true',
-        help="use plms sampling",
     )
     parser.add_argument(
         "--fixed_code",
@@ -176,9 +160,15 @@ def main():
         help="path to config which constructs model",
     )
     parser.add_argument(
-        "--ckpt",
+        "--ckpt_path",
         type=str,
-        default="models/wukong-huahua-ms.ckpt",
+        default="models",
+        help="path to checkpoint of model",
+    )
+    parser.add_argument(
+        "--ckpt_name",
+        type=str,
+        default="wukong-huahua-ms.ckpt",
         help="path to checkpoint of model",
     )
     parser.add_argument(
@@ -195,6 +185,8 @@ def main():
         default="autocast"
     )
     opt = parser.parse_args()
+    work_dir = os.path.dirname(os.path.abspath(__file__))
+    print(f"WORK DIR:{work_dir}")
     
     device_id = int(os.getenv("DEVICE_ID", 0))
     ms.context.set_context(
@@ -206,29 +198,30 @@ def main():
     
     seed_everything(opt.seed)
 
+    if not os.path.isabs(opt.config):
+        opt.config = os.path.join(work_dir, opt.config)
     config = OmegaConf.load(f"{opt.config}")
-    model = load_model_from_config(config, f"{opt.ckpt}")
+    model = load_model_from_config(config, f"{os.path.join(opt.ckpt_path, opt.ckpt_name)}")
     
     sampler = PLMSSampler(model)
-    os.makedirs(opt.outdir, exist_ok=True)
-    outpath = opt.outdir
+    os.makedirs(opt.output_path, exist_ok=True)
+    outpath = opt.output_path
     
     batch_size = opt.n_samples
-    n_rows = opt.n_rows if opt.n_rows > 0 else batch_size
-    if not opt.from_file:
+    if not opt.data_path:
         prompt = opt.prompt
         assert prompt is not None
         data = [batch_size * [prompt]]
     else:
-        print(f"reading prompts from {opt.from_file}")
-        with open(opt.from_file, "r") as f:
+        opt.prompt = os.path.join(opt.data_path, opt.prompt)
+        print(f"reading prompts from {opt.prompt}")
+        with open(opt.prompt, "r") as f:
             data = f.read().splitlines()
-            data = list(chunk(data, batch_size))
+            data = [batch_size * [prompt for prompt in data]] 
 
     sample_path = os.path.join(outpath, "samples")
     os.makedirs(sample_path, exist_ok=True)
     base_count = len(os.listdir(sample_path))
-    grid_count = len(os.listdir(outpath)) - 1
     
     start_code = None
     if opt.fixed_code:
@@ -236,8 +229,8 @@ def main():
         start_code = stdnormal((opt.n_samples, 4, opt.H // 8, opt.W // 8))
 
     all_samples = list()
-    for n in range(opt.n_iter):
-        for prompts in data:
+    for prompts in data:
+        for n in range(opt.n_iter):
             uc = None
             if opt.scale != 1.0:
                 uc = model.get_learned_conditioning(batch_size * [""])
@@ -246,14 +239,15 @@ def main():
             c = model.get_learned_conditioning(prompts)
             shape = [4, opt.H // 8, opt.W // 8]
             samples_ddim, _ = sampler.sample(S=opt.ddim_steps,
-                                                conditioning=c,
-                                                batch_size=opt.n_samples,
-                                                shape=shape,
-                                                verbose=False,
-                                                unconditional_guidance_scale=opt.scale,
-                                                unconditional_conditioning=uc,
-                                                eta=opt.ddim_eta,
-                                                x_T=start_code)
+                                            conditioning=c,
+                                            batch_size=opt.n_samples,
+                                            shape=shape,
+                                            verbose=False,
+                                            unconditional_guidance_scale=opt.scale,
+                                            unconditional_conditioning=uc,
+                                            eta=opt.ddim_eta,
+                                            x_T=start_code
+                                            )
             x_samples_ddim = model.decode_first_stage(samples_ddim)
             x_samples_ddim = ms.ops.clip_by_value((x_samples_ddim + 1.0) / 2.0, 
                                                   clip_value_min=0.0, clip_value_max=1.0)
@@ -271,7 +265,6 @@ def main():
 
         print(f"Your samples are ready and waiting for you here: \n{outpath} \n"
           f" \nEnjoy.")
-        
-        
+          
 if __name__ == "__main__":
     main()

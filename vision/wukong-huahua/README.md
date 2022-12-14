@@ -1,9 +1,12 @@
+
+# Wukong-Huahua
+
 ## 目录
 
 [Check English](./README_EN.md)
 
-- [Wukong-Huahua](#wukong-huahua模型)
-- [环境要求](#环境要求)
+- [Wukong-Huahua](#Wukong-Huahua 悟空画画模型)
+- [环境依赖](#环境依赖)
 - [快速开始](#快速开始)
   - [准备checkpoint](#准备checkpoint)
   - [文图生成](#文图生成)
@@ -11,18 +14,27 @@
 
 ## Wukong-Huahua 悟空画画模型
 
-Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺亚团队**携手**中软分布式并行实验室**，**昇腾计算产品部**联合开发。它基于[Wukong dataset](https://wukong-dataset.github.io/wukong-dataset/)训练得到，并使用昇思框架实现。
+Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺亚团队**携手**中软分布式并行实验室**，**昇腾计算产品部**联合开发。模型基于[Wukong dataset](https://wukong-dataset.github.io/wukong-dataset/)训练，并使用昇思框架(MindSpore)+昇腾(Ascend)软硬件全栈解决方案实现。
 
-## 环境要求
+## 环境依赖
 
-- 硬件
-  - 准备Ascend处理器搭建硬件环境
-- 依赖
-  - [MindSpore](https://www.mindspore.cn/ "MindSpore") >= 1.9
-  - 其他Python包需求请参考[requirements.txt](./requirements.txt)
-- 如需查看详情，请参考如下资源
-  - [MindSpore 教程](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)
-  - [MindSpore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
+1. **昇腾软硬件解决方案(driver+firmwork+CANN)**
+
+   前往[昇腾社区](<https://www.hiascend.com/software/cann/commercial>)下载，按照说明安装。
+
+2. **MindSpore 1.9**
+
+   前往[MindSpore官网](<https://www.mindspore.cn/install>)，按照说明安装。
+
+   如需更多帮助，可以参考以下资料\
+    [Mindspore 教程](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)\
+    [Mindspore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
+
+3. **第三方依赖**
+
+   ```python
+   pip install -r requirements.txt
+   ```
 
 ## 快速开始
 
@@ -35,18 +47,18 @@ Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺�
 要进行文图生成，可以运行txt2img.py 或者直接使用默认参数运行 infer.sh.
 
 ```shell
-python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --H [image_height] --W [image_width] --outdir [image save folder] --n_samples [number of images to generate] --plms --skip_grid
+python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --ckpt_name [ckpt_name] --H [image_height] --W [image_width] --output_path [image save folder] --n_samples [number of images to generate]
 ```
 
 ```shell
 bash infer.sh
 ```
 
-更高的分辨率需要更大的显存. 对于 Ascend 910 卡, 我们可以同时生成2张1024x768的图片或者16张512x512的图片。
+更高的分辨率需要更大的显存. 对于 Ascend 910 芯片, 我们可以同时生成2张1024x768的图片或者16张512x512的图片。
 
 ### 生成样例
 
-下面是我们的wukong-huahua模型生成的一些样例以及对应的`[input text]`。
+下面是我们的Wukong-Huahua模型生成的一些样例以及对应的`[input text]`。
 
 ```
 城市夜景 赛博朋克 格雷格·鲁特科夫斯基

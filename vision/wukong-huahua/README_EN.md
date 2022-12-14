@@ -35,7 +35,7 @@ Download Wukong-Huahua pretrained checkpoint [wukong-huahua-ms.ckpt](https://dow
 To generate images according to input text, run txt2img.py or simply infer.sh with default argumemts.
 
 ```shell
-python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --H [image_height] --W [image_width] --outdir [image save folder] --n_samples [number of images to generate] --plms --skip_grid
+python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --ckpt_name [ckpt_name] --H [image_height] --W [image_width] --output_path [image save folder] --n_samples [number of images to generate]
 ```
 
 ```shell
