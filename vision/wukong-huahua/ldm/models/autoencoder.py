@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-import mindspore
+import mindspore as ms
 import mindspore.nn as nn
 
 from ldm.modules.diffusionmodules.model import Decoder
-from ldm.util import instantiate_from_config
-
 
 class AutoencoderKL(nn.Cell):
     def __init__(self,
@@ -31,7 +29,7 @@ class AutoencoderKL(nn.Cell):
                  use_fp16=False
                  ):
         super().__init__()
-        self.dtype = mindspore.float16 if use_fp16 else mindspore.float32
+        self.dtype = ms.float16 if use_fp16 else ms.float32
         self.image_key = image_key
         self.decoder = Decoder(dtype=self.dtype, **ddconfig)
         assert ddconfig["double_z"]
@@ -40,21 +38,21 @@ class AutoencoderKL(nn.Cell):
         self.embed_dim = embed_dim
         if colorize_nlabels is not None:
             assert type(colorize_nlabels)==int
-            self.register_buffer("colorize", mindspore.ops.standard_normal(3, colorize_nlabels, 1, 1))
+            self.register_buffer("colorize", ms.ops.standard_normal(3, colorize_nlabels, 1, 1))
         if monitor is not None:
             self.monitor = monitor
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
 
     def init_from_ckpt(self, path, ignore_keys=list()):
-        sd = mindspore.load_checkpoint(path)["state_dict"]
+        sd = ms.load_checkpoint(path)["state_dict"]
         keys = list(sd.keys())
         for k in keys:
             for ik in ignore_keys:
                 if k.startswith(ik):
                     print("Deleting key {} from state_dict.".format(k))
                     del sd[k]
-        mindspore.load_param_into_net(self, sd, strict_load=False)
+        ms.load_param_into_net(self, sd, strict_load=False)
         print(f"Restored from {path}")
 
     def decode(self, z):
