@@ -75,7 +75,7 @@ def main():
         "--prompt",
         type=str,
         nargs="?",
-        default="prompts.txt",
+        default="狗 绘画 写实风格",
         help="the prompt to render"
     )
     parser.add_argument(
