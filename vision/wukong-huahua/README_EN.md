@@ -4,7 +4,7 @@
 [查看中文](./README.md)
 
 - [Wukong-Huahua Model](#wukong-huahua-model)
-- [Environment requirements](#environment-requirements)
+- [Environment Requirements](#environment-requirements)
 - [Quick Start](#quick-start)
   - [Prepare Checkpoint](#prepare-checkpoint)
   - [Text to Image Generation](#text-to-image-generation)
