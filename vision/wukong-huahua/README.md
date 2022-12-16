@@ -1,34 +1,35 @@
 
-# Wukong-Huahua
+# 悟空画画
 
 ## 目录
 
 [Check English](./README_EN.md)
 
-- [Wukong-Huahua](#Wukong-Huahua 悟空画画模型)
+- [Wukong-Huahua悟空画画模型](#Wukong-Huahua悟空画画模型)
 - [环境依赖](#环境依赖)
 - [快速开始](#快速开始)
   - [准备checkpoint](#准备checkpoint)
   - [文图生成](#文图生成)
   - [生成样例](#生成样例)
 
-## Wukong-Huahua 悟空画画模型
+## Wukong-Huahua悟空画画模型
 
-Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺亚团队**携手**中软分布式并行实验室**，**昇腾计算产品部**联合开发。模型基于[Wukong dataset](https://wukong-dataset.github.io/wukong-dataset/)训练，并使用昇思框架(MindSpore)+昇腾(Ascend)软硬件解决方案实现。
+Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺亚团队**携手**中软分布式并行实验室**，**昇腾计算产品部**联合开发。模型基于[Wukong dataset](https://wukong-dataset.github.io/wukong-dataset/)训练，并使用[昇思框架(MindSpore)](https://www.mindspore.cn)+昇腾(Ascend)软硬件解决方案实现。
 
 ## 环境依赖
 
-1. **昇腾软硬件解决方案(driver+firmwork+CANN)**
+1. **昇腾软硬件解决方案(驱动+固件+CANN)**
 
-   前往[昇腾社区](<https://www.hiascend.com/software/cann/commercial>)下载，按照说明安装。
+   前往[昇腾社区](<https://www.hiascend.com/software/cann/commercial>)，按照说明下载安装。
 
-2. **MindSpore 1.9**
+2. AI框架 - **MindSpore** == 1.9
 
-   前往[MindSpore官网](<https://www.mindspore.cn/install>)，按照说明安装。
+   前往[MindSpore官网](<https://www.mindspore.cn/install>)，按照说明下载安装。
 
-   如需更多帮助，可以参考以下资料\
-    [MindSpore 教程](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)\
-    [MindSpore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
+   如需更多帮助，可以参考以下资料
+   
+   -  [MindSpore 教程](https://www.mindspore.cn/tutorials/zh-CN/master/index.html)
+   -  [MindSpore Python API](https://www.mindspore.cn/docs/zh-CN/master/index.html)
 
 3. **第三方依赖**
 
@@ -47,9 +48,11 @@ Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺�
 要进行文图生成，可以运行txt2img.py 或者直接使用默认参数运行 infer.sh.
 
 ```shell
-python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --ckpt_name [ckpt_name] --H [image_height] --W [image_width] --output_path [image save folder] --n_samples [number of images to generate]
+python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --ckpt_name [ckpt_name] \
+--H [image_height] --W [image_width] --output_path [image save folder] \
+--n_samples [number of images to generate]
 ```
-
+或者
 ```shell
 bash infer.sh
 ```
