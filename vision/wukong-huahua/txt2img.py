@@ -14,6 +14,7 @@
 # ============================================================================
 
 import os
+import time
 import sys
 import argparse
 from PIL import Image
@@ -27,6 +28,7 @@ print("workspace", workspace, flush=True)
 sys.path.append(workspace)
 from ldm.util import instantiate_from_config
 from ldm.models.diffusion.plms import PLMSSampler
+from ldm.models.diffusion.dpm_solver import DPMSolverSampler
 
 
 def seed_everything(seed):
@@ -137,6 +139,11 @@ def main():
         help="how many samples to produce for each given prompt. A.k.a. batch size",
     )
     parser.add_argument(
+        "--dpm_solver",
+        action='store_true',
+        help="use dpm_solver sampling",
+    )
+    parser.add_argument(
         "--n_rows",
         type=int,
         default=0,
@@ -202,8 +209,11 @@ def main():
         opt.config = os.path.join(work_dir, opt.config)
     config = OmegaConf.load(f"{opt.config}")
     model = load_model_from_config(config, f"{os.path.join(opt.ckpt_path, opt.ckpt_name)}")
-    
-    sampler = PLMSSampler(model)
+
+    if opt.dpm_solver:
+        sampler = DPMSolverSampler(model)
+    else:
+        sampler = PLMSSampler(model)
     os.makedirs(opt.output_path, exist_ok=True)
     outpath = opt.output_path
     
@@ -231,6 +241,8 @@ def main():
     all_samples = list()
     for prompts in data:
         for n in range(opt.n_iter):
+            start_time = time.time()
+
             uc = None
             if opt.scale != 1.0:
                 uc = model.get_learned_conditioning(batch_size * [""])
@@ -262,6 +274,9 @@ def main():
                     
             if not opt.skip_grid:
                 all_samples.append(x_samples_ddim_numpy)
+
+            end_time = time.time()
+            print(f"the infer time of a batch is {end_time-start_time}")
 
         print(f"Your samples are ready and waiting for you here: \n{outpath} \n"
           f" \nEnjoy.")
