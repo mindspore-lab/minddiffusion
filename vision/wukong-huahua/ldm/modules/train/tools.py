@@ -35,11 +35,11 @@ class NoOp:
         return
 
 
-def parse_with_config(parser):
+def parse_with_config(args):
     """Parse With Config"""
-    args = parser.parse_args()
-    data_path_dir = args.data_path
     if args.train_config is not None:
+        abs_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../.."))
+        args.train_config = os.path.join(abs_path, args.train_config)
         config_args = json.load(open(args.train_config))
         override_keys = {arg[2:].split('=')[0] for arg in sys.argv[1:]
                          if arg.startswith('--')}
