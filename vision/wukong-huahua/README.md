@@ -55,10 +55,28 @@ python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --ckpt_name [ckp
 ```
 或者
 ```shell
-bash infer.sh
+bash scripts/infer.sh
 ```
 
 更高的分辨率需要更大的显存. 对于 Ascend 910 芯片, 我们可以同时生成2张1024x768的图片或者16张512x512的图片。
+
+### 训练微调
+
+- 单卡微调
+
+修改scripts/run_train.sh中相应配置
+
+```shell
+bash scripts/run_train.sh
+```
+
+- 多卡并行微调
+
+修改scripts/run_train_parallel.sh中相应配置
+
+```shell
+bash scripts/run_train_parallel.sh [DEVICE_NUM] [VISIABLE_DEVICES(0,1,2,3,4,5,6,7)] [RANK_TABLE_FILE]
+```
 
 ### 生成样例
 
