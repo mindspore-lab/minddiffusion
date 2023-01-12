@@ -27,7 +27,6 @@ class FrozenCLIPEmbedder_ZH(nn.Cell):
         self.max_length = max_length
         self.tokenizer = WordpieceTokenizer()
         self.transformer = TextEncoder(context_length=77, vocab_size=49408, output_dim=768, width=768, layers=12, heads=12, dtype=self.dtype)
-        self.transformer.set_train(False)
 
     def tokenize(self, texts):
         SOT_TEXT = "[CLS]"
@@ -53,4 +52,8 @@ class FrozenCLIPEmbedder_ZH(nn.Cell):
     def encode(self, text):
         batch_encoding = self.tokenize(text)
         outputs = self.transformer(batch_encoding)
+        return outputs
+
+    def construct(self, c):
+        outputs = self.transformer(c)
         return outputs

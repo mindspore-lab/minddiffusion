@@ -108,7 +108,6 @@ class GroupNorm32(nn.GroupNorm):
         return super().construct(x)
     
 
-
 def timestep_embedding(timesteps, dim, max_period=10000, repeat_only=False):
     """
     Create sinusoidal timestep embeddings.
@@ -180,29 +179,6 @@ def make_beta_schedule(schedule="linear", n_timestep=1000, linear_start=1e-4, li
         betas = (
                 linspase(start, stop, num) ** 2
         )
-
-    # elif schedule == "cosine":
-    #     timesteps = (
-    #             ms.numpy.arange(n_timestep + 1, dtype=ms.float64) / n_timestep + cosine_s
-    #     )
-    #     alphas = timesteps / (1 + cosine_s) * np.pi / 2
-    #     alphas = torch.cos(alphas).pow(2)
-    #     alphas = alphas / alphas[0]
-    #     betas = 1 - alphas[1:] / alphas[:-1]
-    #     betas = np.clip(betas, a_min=0, a_max=0.999)
-
-    # elif schedule == "sqrt_linear":
-    #     start = ms.Tensor((linear_start), dtype=ms.float32)
-    #     stop = ms.Tensor((linear_end), dtype=ms.float32)
-    #     num = n_timestep
-    #     betas = torch.linspace(linear_start, linear_end, n_timestep)
-
-    # elif schedule == "sqrt":
-    #     start = ms.Tensor((linear_start), dtype=ms.float32)
-    #     stop = ms.Tensor((linear_end), dtype=ms.float32)
-    #     num = n_timestep
-    #     betas = torch.linspace(linear_start, linear_end, n_timestep) ** 0.5
-
     else:
         raise ValueError(f"schedule '{schedule}' unknown.")
 
