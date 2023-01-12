@@ -14,6 +14,7 @@
 # ============================================================================
 import importlib
 from inspect import isfunction
+import mindspore.ops as ops
 
 
 def exists(x):
@@ -49,3 +50,8 @@ def get_obj_from_str(string, reload=False):
         module_imp = importlib.import_module(module)
         importlib.reload(module_imp)
     return getattr(importlib.import_module(module, package=None), cls)
+
+def extract_into_tensor(a, t, x_shape):
+    b = t.shape[0]
+    out = ops.GatherD()(a, -1, t)
+    return out.reshape(b, *((1,) * (len(x_shape) - 1)))

@@ -109,7 +109,7 @@ class ResBlock(nn.Cell):
             self,
             channels,
             emb_channels,
-            dropout,
+            dropout=1.0,
             out_channels=None,
             use_conv=False,
             use_scale_shift_norm=False,
@@ -185,7 +185,6 @@ class ResBlock(nn.Cell):
             h = self.in_layers_silu(h)
             h = self.in_layers_conv(h, emb, context)
             
-
         emb_out = self.emb_layers(emb)
         while len(emb_out.shape) < len(h.shape):
             emb_out = ops.expand_dims(emb_out, -1)
@@ -207,7 +206,6 @@ class ResBlock(nn.Cell):
         return self.skip_connection(x) + h
 
 
-# 预留
 class QKVAttention(nn.Cell):
     """
     A module which performs QKV attention and splits in a different order.
@@ -218,7 +216,6 @@ class QKVAttention(nn.Cell):
         self.n_heads = n_heads
 
 
-# 预留
 class QKVAttentionLegacy(nn.Cell):
     """
     A module which performs QKV attention. Matches legacy QKVAttention + input/output heads shaping
@@ -284,7 +281,7 @@ class UNetModel(nn.Cell):
         out_channels,
         num_res_blocks,
         attention_resolutions,
-        dropout=1.0,
+        dropout=0.0,
         channel_mult=(1, 2, 4, 8),
         conv_resample=True,
         dims=2,
@@ -329,7 +326,7 @@ class UNetModel(nn.Cell):
         self.out_channels = out_channels
         self.num_res_blocks = num_res_blocks
         self.attention_resolutions = attention_resolutions
-        self.dropout = dropout
+        self.dropout = 1.0 - dropout
         self.channel_mult = channel_mult
         self.conv_resample = conv_resample
         self.num_classes = num_classes
@@ -366,7 +363,7 @@ class UNetModel(nn.Cell):
                     ResBlock(
                         ch,
                         time_embed_dim,
-                        dropout,
+                        self.dropout,
                         out_channels=mult * model_channels,
                         dims=dims,
                         use_checkpoint=use_checkpoint,
@@ -382,7 +379,6 @@ class UNetModel(nn.Cell):
                         num_heads = ch // num_head_channels
                         dim_head = num_head_channels
                     if legacy:
-                        #num_heads = 1
                         dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
                     layers.append(
                         AttentionBlock(
@@ -393,7 +389,7 @@ class UNetModel(nn.Cell):
                             use_new_attention_order=use_new_attention_order,
                         ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim,
-                            use_checkpoint=use_checkpoint, dtype=self.dtype
+                            use_checkpoint=use_checkpoint, dtype=self.dtype, dropout=self.dropout
                         )
                     )
                 self.input_blocks.append(layers)
@@ -406,7 +402,7 @@ class UNetModel(nn.Cell):
                         [ResBlock(
                             ch,
                             time_embed_dim,
-                            dropout,
+                            self.dropout,
                             out_channels=out_ch,
                             dims=dims,
                             use_checkpoint=use_checkpoint,
@@ -429,14 +425,13 @@ class UNetModel(nn.Cell):
             num_heads = ch // num_head_channels
             dim_head = num_head_channels
         if legacy:
-            #num_heads = 1
             dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
 
         self.middle_block =  nn.CellList([
                     ResBlock(
                         ch,
                         time_embed_dim,
-                        dropout,
+                        self.dropout,
                         dims=dims,
                         use_checkpoint=use_checkpoint,
                         use_scale_shift_norm=use_scale_shift_norm,
@@ -450,12 +445,12 @@ class UNetModel(nn.Cell):
                         use_new_attention_order=use_new_attention_order,
                     ) if not use_spatial_transformer else SpatialTransformer(
                                     ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim,
-                                    use_checkpoint=use_checkpoint, dtype=self.dtype
+                                    use_checkpoint=use_checkpoint, dtype=self.dtype, dropout=self.dropout
                                 ),
                     ResBlock(
                         ch,
                         time_embed_dim,
-                        dropout,
+                        self.dropout,
                         dims=dims,
                         use_checkpoint=use_checkpoint,
                         use_scale_shift_norm=use_scale_shift_norm,
@@ -472,7 +467,7 @@ class UNetModel(nn.Cell):
                     ResBlock(
                         ch + ich,
                         time_embed_dim,
-                        dropout,
+                        self.dropout,
                         out_channels=model_channels * mult,
                         dims=dims,
                         use_checkpoint=use_checkpoint,
@@ -499,7 +494,7 @@ class UNetModel(nn.Cell):
                             use_new_attention_order=use_new_attention_order,
                         ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim,
-                            use_checkpoint=use_checkpoint, dtype=self.dtype
+                            use_checkpoint=use_checkpoint, dtype=self.dtype, dropout=self.dropout
                         )
                     )
                 if level and i == num_res_blocks:
@@ -508,7 +503,7 @@ class UNetModel(nn.Cell):
                         ResBlock(
                             ch,
                             time_embed_dim,
-                            dropout,
+                            self.dropout,
                             out_channels=out_ch,
                             dims=dims,
                             use_checkpoint=use_checkpoint,
@@ -534,7 +529,6 @@ class UNetModel(nn.Cell):
             self.id_predictor = nn.SequentialCell(
             normalization(ch),
             conv_nd(dims, model_channels, n_embed, 1, has_bias=True, pad_mode='pad').to_float(self.dtype),
-            #nn.LogSoftmax(dim=1)  # change to cross_entropy and produce non-normalized logits
         )
         self.cat = ops.Concat(axis=1)
 
@@ -560,7 +554,6 @@ class UNetModel(nn.Cell):
             assert y.shape == (x.shape[0],)
             emb = emb + self.label_emb(y)
 
-        # h = x.type(self.dtype)
         h = x
         for celllist in self.input_blocks:
             for cell in celllist:
@@ -577,7 +570,6 @@ class UNetModel(nn.Cell):
                 h = cell(h, emb, context)
             hs_index -= 1
 
-        # h = h.type(x.dtype)
         if self.predict_codebook_ids:
             return self.id_predictor(h)
         else:

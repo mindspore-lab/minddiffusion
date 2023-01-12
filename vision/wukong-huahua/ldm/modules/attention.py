@@ -60,7 +60,6 @@ class FeedForward(nn.Cell):
             nn.Dense(dim, inner_dim).to_float(dtype),
             nn.GELU().to_float(dtype)
         ) if not glu else GEGLU(dim, inner_dim, dtype=dtype)
-
         self.net = nn.SequentialCell(
             project_in,
             nn.Dropout(dropout),
@@ -85,7 +84,6 @@ def Normalize(in_channels):
     return nn.GroupNorm(num_groups=32, num_channels=in_channels, eps=1e-6, affine=True).to_float(ms.float32)
 
 
-# 预留
 class LinearAttention(nn.Cell):
     def __init__(self, dim, heads=4, dim_head=32):
         super().__init__()
@@ -110,7 +108,6 @@ class CrossAttention(nn.Cell):
         self.to_q = nn.Dense(query_dim, inner_dim, has_bias=False).to_float(dtype)
         self.to_k = nn.Dense(context_dim, inner_dim, has_bias=False).to_float(dtype)
         self.to_v = nn.Dense(context_dim, inner_dim, has_bias=False).to_float(dtype)
-
         self.to_out = nn.SequentialCell(
             nn.Dense(inner_dim, query_dim).to_float(dtype),
             nn.Dropout(dropout)
@@ -210,7 +207,6 @@ class SpatialTransformer(nn.Cell):
                                  padding=0,
                                  has_bias=True,
                                  pad_mode='pad').to_float(dtype)
-
         self.transformer_blocks = nn.CellList(
             [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim, 
                                    checkpoint=use_checkpoint, dtype=self.dtype)

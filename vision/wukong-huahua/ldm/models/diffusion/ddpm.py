@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-import time
 import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
@@ -21,7 +20,7 @@ import numpy as np
 from contextlib import contextmanager
 from functools import partial
 
-from ldm.util import exists, default, instantiate_from_config
+from ldm.util import exists, default, instantiate_from_config, extract_into_tensor
 from ldm.modules.diffusionmodules.util import make_beta_schedule
 
 def disabled_train(self, mode=True):
@@ -105,6 +104,8 @@ class DDPM(nn.Cell):
         if self.learn_logvar:
             self.logvar = ms.Parameter(self.logvar, requires_grad=True)
         self.randn_like = ops.StandardNormal()
+        self.mse_mean = nn.MSELoss(reduction='mean')
+        self.mse_none = nn.MSELoss(reduction='none')
 
     def register_schedule(self, given_betas=None, beta_schedule="linear", timesteps=1000,
                           linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):
@@ -134,7 +135,6 @@ class DDPM(nn.Cell):
         self.log_one_minus_alphas_cumprod = to_mindspore(np.log(1. - alphas_cumprod))
         self.sqrt_recip_alphas_cumprod = to_mindspore(np.sqrt(1. / alphas_cumprod))
         self.sqrt_recipm1_alphas_cumprod = to_mindspore(np.sqrt(1. / alphas_cumprod - 1))
-
 
         # calculations for posterior q(x_{t-1} | x_t, x_0)
         posterior_variance = (1 - self.v_posterior) * betas * (1. - alphas_cumprod_prev) / (
@@ -177,6 +177,26 @@ class DDPM(nn.Cell):
                 if context is not None:
                     print(f"{context}: Restored training weights")
 
+    def get_loss(self, pred, target, mean=True):
+        if self.loss_type == 'l1':
+            loss = (target - pred).abs()
+            if mean:
+                loss = loss.mean()
+        elif self.loss_type == 'l2':
+            if mean:
+                loss = nn.MSELoss(reduction='mean')(target, pred)
+            else:
+                loss = nn.MSELoss(reduction='none')(target, pred)
+        else:
+            raise NotImplementedError("unknown loss type '{loss_type}'")
+
+        return loss
+
+    def q_sample(self, x_start, t, noise=None):
+        return (extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape) * x_start +
+                extract_into_tensor(self.sqrt_one_minus_alphas_cumprod, t, x_start.shape) * noise)
+
+
 class LatentDiffusion(DDPM):
     """main class"""
 
@@ -217,11 +237,14 @@ class LatentDiffusion(DDPM):
         self.cond_stage_forward = cond_stage_forward
         self.clip_denoised = False
         self.bbox_tokenizer = None
+        self.uniform_int = ops.UniformInt()
 
         self.restarted_from_ckpt = False
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys)
             self.restarted_from_ckpt = True
+        
+        self.transpose = ops.Transpose()
 
     def register_schedule(self,
                           given_betas=None, beta_schedule="linear", timesteps=1000,
@@ -232,8 +255,7 @@ class LatentDiffusion(DDPM):
 
     def instantiate_first_stage(self, config):
         model = instantiate_from_config(config)
-        self.first_stage_model = model.set_train(False)
-        self.first_stage_model.train = disabled_train
+        self.first_stage_model = model
         for param in self.first_stage_model.get_parameters():
             param.requires_grad = False
 
@@ -253,6 +275,10 @@ class LatentDiffusion(DDPM):
         else:
             assert hasattr(self.cond_stage_model, self.cond_stage_forward)
             c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
+        return c
+    
+    def get_learned_conditioning_fortrain(self, c):
+        c = self.cond_stage_model(c)
         return c
 
     def decode_first_stage(self, z, predict_cids=False):
@@ -275,6 +301,45 @@ class LatentDiffusion(DDPM):
             return x_recon[0]
         else:
             return x_recon
+
+    def get_input(self, x, c):
+        if len(x.shape) == 3:
+            x = x[..., None]
+        x = self.transpose(x, (0, 3, 1, 2))
+        z = ops.stop_gradient(self.scale_factor * self.first_stage_model.encode(x))
+
+        return z, c
+
+    def construct(self, x, c):
+        t = self.uniform_int((x.shape[0],), ms.Tensor(0, dtype=ms.int32), ms.Tensor(self.num_timesteps, dtype=ms.int32))
+        x, c = self.get_input(x, c)
+        c = self.get_learned_conditioning_fortrain(c)
+        return self.p_losses(x, c, t)
+
+    def p_losses(self, x_start, cond, t, noise=None):
+        noise = ms.numpy.randn(x_start.shape)
+        x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
+        model_output = self.apply_model(x_noisy, t, cond)
+
+        if self.parameterization == "x0":
+            target = x_start
+        elif self.parameterization == "eps":
+            target = noise
+        else:
+            raise NotImplementedError()
+
+        loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
+
+        logvar_t = self.logvar[t]
+        loss = loss_simple / ops.exp(logvar_t) + logvar_t
+        loss = self.l_simple_weight * loss.mean()
+
+        loss_vlb = self.get_loss(model_output, target, mean=False).mean((1, 2, 3))
+        loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
+        loss += (self.original_elbo_weight * loss_vlb)
+        
+        return loss
+
 
 class DiffusionWrapper(nn.Cell):
     def __init__(self, diff_model_config, conditioning_key):
