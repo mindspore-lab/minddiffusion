@@ -8,6 +8,7 @@
 - [Quick Start](#quick-start)
   - [Prepare Checkpoint](#prepare-checkpoint)
   - [Text to Image Generation](#text-to-image-generation)
+  - [Fine-tuning](#fine-tuning)
   - [Demos](#demos)
 
 ## Wukong-Huahua Model
@@ -39,6 +40,8 @@ Wukong-Huahua is a diffusion-based model that perfoms text-to-image task in Chin
 
 Download Wukong-Huahua pretrained checkpoint [wukong-huahua-ms.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/wukong-huahua-ms.ckpt) and place it under wukong-huahua/models/ folder.
 
+For fine tune task , we provide example datasets to show the format, please download [here](https://opt-release.obs.cn-central-221.ovaijisuan.com/wukonghuahua/dataset.tar.gz).
+
 ### Text to Image Generation
 
 To generate images according to input text, run txt2img.py or simply run infer.sh with default argumemts.
@@ -50,10 +53,28 @@ python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --ckpt_name [ckp
 ```
 or
 ```shell
-bash infer.sh
+bash scripts/infer.sh
 ```
 
 Generating higher resolution requires more memory. For Ascend 910 chip, we can generate 2 1024x768 images or 16 512 x 512 images at same time.
+
+### Fine-tuning
+
+- Single card fine-tune:
+
+modify the related configs in scripts/run_train.sh
+
+```
+bash scripts/run_train.sh
+```
+
+- Multi-card fine-tune:
+
+modify the related configs in scripts/run_train_parallel.sh
+
+```
+bash scripts/run_train_parallel.sh [DEVICE_NUM] [VISIABLE_DEVICES(0,1,2,3,4,5,6,7)] [RANK_TABLE_FILE]
+```
 
 ### Demos
 
