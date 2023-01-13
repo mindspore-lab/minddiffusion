@@ -44,6 +44,8 @@ Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺�
 
 下载Wukong-Huahua预训练参数 [wukong-huahua-ms.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/wukong-huahua-ms.ckpt) 至 wukong-huahua/models/ 目录.
 
+对于微调任务，我们提供了示例数据来展示格式，点击[这里](https://opt-release.obs.cn-central-221.ovaijisuan.com:443/wukonghuahua/dataset.tar.gz)下载.
+
 ### 文图生成
 
 要进行文图生成，可以运行txt2img.py 或者直接使用默认参数运行 infer.sh.
