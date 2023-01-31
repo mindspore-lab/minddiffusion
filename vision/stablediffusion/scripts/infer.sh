@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # Copyright 2022 Huawei Technologies Co., Ltd
 #
