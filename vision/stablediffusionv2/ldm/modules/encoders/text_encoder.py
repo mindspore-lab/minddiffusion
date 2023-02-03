@@ -64,16 +64,6 @@ class MultiheadAttention(nn.Cell):
         return attn_output
 
 
-# class QuickGELU(nn.Cell):
-#     def __init__(self):
-#         super(QuickGELU, self).__init__()
-#         self.ratio = 1.702
-#         self.sigmoid = nn.Sigmoid()
-#
-#     def construct(self, x):
-#         return x * self.sigmoid(self.ratio * x)
-
-
 class QuickGELU(nn.GELU):
     def __init__(self):
         super(QuickGELU, self).__init__()
