@@ -39,9 +39,7 @@ Stablediffusionv2模型由**Stability-AI**团队研发，由**华为昇腾**部�
 
 ### 准备checkpoint
 
-下载stablediffusionv2预训练参数 [stablediffusionv2_512.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/stablediffusion/stablediffusionv2_512.ckpt) 至 stablediffusion/models/ 目录.
-
-对于微调任务，我们提供了示例数据来展示格式，点击[这里](https://opt-release.obs.cn-central-221.ovaijisuan.com:443/wukonghuahua/dataset.tar.gz)下载.
+下载stablediffusionv2预训练参数 [stablediffusionv2_512.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/stablediffusion/stablediffusionv2_512.ckpt) 至 stablediffusionv2/models/ 目录.
 
 ### 文图生成
 
@@ -77,13 +75,42 @@ A Van Gogh style oil painting of sunflower
 ![A Van Gogh style oil painting of sunflower](demo/sunflower2.png)
 
 ```
-A Van Gogh style oil painting of starry sky
+a professional photograph of an astronaut riding a horse
 ```
 
-![A Van Gogh style oil painting of starry sky](demo/star1.png)
+![A Van Gogh style oil painting of starry sky](demo/horse1.png)
 
 ```
-A Van Gogh style oil painting of starry sky
+a professional photograph of an astronaut riding a horse
 ```
 
-![A Van Gogh style oil painting of starry sky](demo/star2.png)
+![A Van Gogh style oil painting of starry sky](demo/horse2.png)
+
+```
+The beautiful night view of the city has various buildings, traffic flow, and lights.
+```
+
+![A Van Gogh style oil painting of starry sky](demo/city1.png)
+
+```
+The beautiful night view of the city has various buildings, traffic flow, and lights.
+```
+
+![A Van Gogh style oil painting of starry sky](demo/city2.png)
+
+```
+Modernist style, sunset, withered vines, old trees, and mountains
+```
+
+![A Van Gogh style oil painting of starry sky](demo/tree1.png)
+
+```
+Modernist style, sunset, withered vines, old trees, and mountains
+```
+
+![A Van Gogh style oil painting of starry sky](demo/tree2.png)
+
+
+
+
+
