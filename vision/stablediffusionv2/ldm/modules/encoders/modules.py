@@ -26,7 +26,7 @@ class FrozenCLIPEmbedder_ZH(nn.Cell):
         self.dtype = ms.float16 if use_fp16 else ms.float32
         self.max_length = max_length
         self.tokenizer = tokenize
-        self.transformer = TextEncoder(context_length=77, vocab_size=49408, output_dim=1024, width=1024, layers=24, heads=16, dtype=self.dtype)
+        self.transformer = TextEncoder(context_length=77, vocab_size=49408, output_dim=1024, width=1024, layers=23, heads=16, dtype=self.dtype)
 
     def tokenize(self, texts):
         return self.tokenizer(texts)

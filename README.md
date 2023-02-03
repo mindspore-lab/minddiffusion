@@ -10,7 +10,7 @@ These models are implemented in MindSpore and run on Ascend.
 |---|---|---|
 |Taichu-GLIDE | Vision - Text To Image|[Link](./vision/Taichu-GLIDE/) |
 |Wukong-Huahua| Vision - Text To Image|[Link](./vision/wukong-huahua/) |
-|Stable-Diffusionv2| Vision - Text To Image|[Link](./vision/stablediffusion/) |
+|Stable-Diffusionv2| Vision - Text To Image|[Link](vision/stablediffusionv2/) |
 
 ## Awesome Model List
 <table>
