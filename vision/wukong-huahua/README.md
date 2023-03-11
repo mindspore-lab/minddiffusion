@@ -41,13 +41,17 @@ Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺�
 
 ## 快速开始
 
+### 任务一：通用文生图任务
+
+![效果图合集](demo/效果图合集.jpg)
+
 ### 准备checkpoint
 
 下载Wukong-Huahua预训练参数 [wukong-huahua-ms.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/wukong-huahua-ms.ckpt) 至 wukong-huahua/models/ 目录.
 
 对于微调任务，我们提供了示例数据来展示格式，点击[这里](https://opt-release.obs.cn-central-221.ovaijisuan.com:443/wukonghuahua/dataset.tar.gz)下载.
 
-### 文图生成
+#### 推理生成
 
 要进行文图生成，可以运行txt2img.py 或者直接使用默认参数运行 infer.sh.
 
@@ -63,7 +67,7 @@ bash scripts/infer.sh
 
 更高的分辨率需要更大的显存. 对于 Ascend 910 芯片, 我们可以同时生成2张1024x768的图片或者16张512x512的图片。
 
-### 训练微调
+#### 训练微调
 
 - 单卡微调
 
@@ -81,48 +85,41 @@ bash scripts/run_train.sh
 bash scripts/run_train_parallel.sh [DEVICE_NUM] [VISIABLE_DEVICES(0,1,2,3,4,5,6,7)] [RANK_TABLE_FILE]
 ```
 
-### 生成样例
 
-下面是我们的Wukong-Huahua模型生成的一些样例以及对应的`[input text]`。
 
-```
-城市夜景 赛博朋克 格雷格·鲁特科夫斯基
-```
+### 任务二：个性化文生图任务
 
-![城市夜景 赛博朋克 格雷格·鲁特科夫斯基](demo/城市夜景%20赛博朋克%20格雷格·鲁特科夫斯基.png)
+能够基于3-5张同一主体的照片，经过25-35分钟的个性化微调，得到该主体定制化的图片生成模型。
 
-```
-莫奈 撑阳伞的女人 月亮 梦幻
-```
+训练数据：
 
-![莫奈 撑阳伞的女人 月亮 梦幻](demo/莫奈%20撑阳伞的女人%20月亮%20梦幻.png)
+![个性化训练数据-猫](demo/个性化训练数据-猫.jpg)
 
-```
-海上日出时候的奔跑者
-```
 
-![海上日出时候的奔跑者](demo/海上日出时候的奔跑者.png)
 
-```
-诺亚方舟在世界末日起航 科幻插画
-```
+效果展示,生成各种风格的主体图片：
 
-![诺亚方舟在世界末日起航 科幻插画](demo/诺亚方舟在世界末日起航%20科幻插画.png)
+![个性化生成效果-猫](demo/个性化生成效果-猫.jpg)
 
-```
-时空 黑洞 辐射
+#### 资源和数据准备
+
+1. 下载Wukong-Huahua预训练参数 [wukong-huahua-ms.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/wukong-huahua-ms.ckpt) 至 wukong-huahua/models/ 目录
+2. 训练数据，3-5张同一主体的照片（训练照片规格为512*512，尽量选取单一干净的背景，主体突出）
+3. 准备正则数据200张。如训练主体为狗，则需准备200张各种其他狗的图片，这些图片可以通过通用模型生成，也可以手动收集。提供了男人、女人、狗、猫四个类别的正则数据各200张。点击[这里](https://opt-release.obs.cn-central-221.ovaijisuan.com:443/wkhh-db/dataset/reg_data.rar)下载
+
+#### 个性化微调
+
+修改scrpts/run_db_train.sh中output_path（输出路径）、pretrained_model_path（预训练模型路径）、train_data_path（训练数据路径）、reg_data_path（正则数据路径，与训练数据主体类别对应）、class_word（训练数据主体类别）、token（训练主体标识符，可用默认）
+
+```shell
+bash scripts/run_db_train.sh
 ```
 
-![时空 黑洞 辐射](demo/时空%20黑洞%20辐射.png)
+#### 个性化生成
 
-```
-乡村 田野 屏保
-```
+增加scrpts/run_infer.sh中python脚本入参ckpt_path（微调好的ckpt保存的目录），ckpt_name（微调好的ckpt名称），修改prompt，格式最好为token+class_word+风格，如“α猫 插画风格”、“α猫 素描画风格”
 
-![乡村 田野 屏保](demo/乡村%20田野%20屏保.png)
-
-```
-来自深渊 风景 绘画 写实风格
+```shell
+bash scripts/infer.sh
 ```
 
-![来自深渊 风景 绘画 写实风格](demo/来自深渊%20风景%20绘画%20写实风格.png)
