@@ -1,0 +1,32 @@
+{
+    "model_config": "configs/v1-train-db-chinese.yaml",
+    "pretrained_model_path": "models/",
+    "pretrained_model_file":"wukong-huahua-ms.ckpt",
+    "data_path": "/secHome/FFHQ",
+    "train_data_path": "dataset/train_cat",
+    "reg_data_path": "dataset/reg_cat",
+    "train_data_repeats": 100,
+    "class_word": "猫",
+    "token": "α",
+    "train_batch_size": 1,
+    "gradient_accumulation_steps": 1,
+    "optim": "adamw",
+    "patch_size":32,
+    "epochs": 5,
+    "betas": [
+        0.9,
+        0.98
+    ],
+    "dropout": 0.1,
+    "weight_decay": 0.01,
+    "warmup_steps": 100,
+    "seed": 3407,
+    "image_size": 512,
+    "image_filter_size": 256,
+    "random_crop": false,
+    "filter_small_size": true, 
+    "start_learning_rate": 1e-6,
+    "end_learning_rate": 1e-7,
+    "decay_steps": 0,
+    "save_checkpoint_steps": 1000
+}
