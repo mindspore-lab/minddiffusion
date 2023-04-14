@@ -12,11 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-import time
-
 import mindspore as ms
-import mindspore.nn as nn
-import mindspore.ops as ops
+from mindspore import ops
 
 from ldm.modules.diffusionmodules.util import (
     make_ddim_sampling_parameters,
@@ -90,7 +87,10 @@ class PLMSSampler():
                ):
         if conditioning is not None:
             if isinstance(conditioning, dict):
-                cbs = conditioning[list(conditioning.keys())[0]].shape[0]
+                ctmp = conditioning[list(conditioning.keys())[0]]
+                while isinstance(ctmp, list):
+                    ctmp = ctmp[0]
+                cbs = ctmp.shape[0]
                 if cbs != batch_size:
                     print(f"Warning: Got {cbs} conditionings but batch-size is {batch_size}")
             else:
@@ -126,7 +126,7 @@ class PLMSSampler():
                       unconditional_guidance_scale=1., unconditional_conditioning=None,):
         b = shape[0]
         if x_T is None:
-            img = ms.ops.StandardNormal()(shape)
+            img = ops.standard_normal(shape)
         else:
             img = x_T
             
@@ -152,7 +152,7 @@ class PLMSSampler():
 
             if mask is not None:
                 assert x0 is not None
-                img_orig = self.model.q_sample(x0, ts)  # TODO: deterministic forward pass?
+                img_orig = self.model.q_sample(x0, ts, ms.numpy.randn(x0.shape))
                 img = img_orig * mask + (1. - mask) * img
                 
             outs = self.p_sample_plms(img, cond, ts, index=index, use_original_steps=ddim_use_original_steps,
@@ -188,8 +188,21 @@ class PLMSSampler():
             else:
                 x_in = ops.concat((x, x), axis=0)
                 t_in = ops.concat((t, t), axis=0)
-                c_in = ops.concat((unconditional_conditioning, c), axis=0)
-                e_t_uncond, e_t = ops.split((self.model.apply_model(x_in, t_in, c_in)), 0, 2)
+                if isinstance(c, dict):
+                    assert isinstance(unconditional_conditioning, dict)
+                    c_in = dict()
+                    for k in c:
+                        if isinstance(c[k], list):
+                            c_in[k] = [
+                                ops.concat([unconditional_conditioning[k][i], c[k][i]], axis=0) for i in range(len(c[k]))
+                            ]
+                        else:
+                            c_in[k] = ops.concat([unconditional_conditioning[k], c[k]], axis=0)
+                    ldm_output = self.model.apply_model(x_in, t_in, **c_in)
+                else:
+                    c_in = ops.concat((unconditional_conditioning, c), axis=0)
+                    ldm_output = self.model.apply_model(x_in, t_in, c_crossattn=c_in)
+                e_t_uncond, e_t = ops.split(ldm_output, axis=0, output_num=2)
                 e_t = e_t_uncond + unconditional_guidance_scale * (e_t - e_t_uncond)
 
             if score_corrector is not None:
