@@ -12,13 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-import mindspore as ms
-import mindspore.nn as nn
-import mindspore.ops as ops
-
 import numpy as np
 from contextlib import contextmanager
 from functools import partial
+
+from mindspore import dtype as mstype, numpy as msnp, nn, ops, Tensor, Parameter
 
 from ldm.util import exists, default, instantiate_from_config, extract_into_tensor
 from ldm.modules.diffusionmodules.util import make_beta_schedule
@@ -73,14 +71,7 @@ class DDPM(nn.Cell):
         self.channels = channels
         self.use_positional_encodings = use_positional_encodings
         self.model = DiffusionWrapper(unet_config, conditioning_key)
-        self.dtype = ms.float16 if use_fp16 else ms.float32
-        self.use_ema = use_ema
-        if self.use_ema:
-            # todo use_ema is False when inference
-            assert self.use_ema == False
-            self.model_ema = LitEma(self.model)
-            print(f"Keeping EMAs of {len(self.model_ema.untrainable_params())}.")
-
+        self.dtype = mstype.float16 if use_fp16 else mstype.float32
         self.use_scheduler = scheduler_config is not None
         if self.use_scheduler:
             self.scheduler_config = scheduler_config
@@ -100,9 +91,9 @@ class DDPM(nn.Cell):
         self.loss_type = loss_type
 
         self.learn_logvar = learn_logvar
-        self.logvar = ms.numpy.full(shape=(self.num_timesteps,), fill_value=logvar_init)
+        self.logvar = msnp.full(shape=(self.num_timesteps,), fill_value=logvar_init)
         if self.learn_logvar:
-            self.logvar = ms.Parameter(self.logvar, requires_grad=True)
+            self.logvar = Parameter(self.logvar, requires_grad=True)
         self.randn_like = ops.StandardNormal()
         self.mse_mean = nn.MSELoss(reduction='mean')
         self.mse_none = nn.MSELoss(reduction='none')
@@ -124,7 +115,7 @@ class DDPM(nn.Cell):
         self.linear_end = linear_end
         assert alphas_cumprod.shape[0] == self.num_timesteps, 'alphas have to be defined for each timestep'
 
-        to_mindspore = partial(ms.Tensor, dtype=self.dtype)
+        to_mindspore = partial(Tensor, dtype=self.dtype)
         self.betas = to_mindspore(betas)
         self.alphas_cumprod = to_mindspore(alphas_cumprod)
         self.alphas_cumprod_prev = to_mindspore(alphas_cumprod_prev)
@@ -152,7 +143,7 @@ class DDPM(nn.Cell):
             lvlb_weights = self.betas ** 2 / (
                         2 * self.posterior_variance * to_mindspore(alphas) * (1 - self.alphas_cumprod))
         elif self.parameterization == "x0":
-            lvlb_weights = 0.5 * ms.numpy.sqrt(ms.Tensor(alphas_cumprod)) / (2. * 1 - ms.Tensor(alphas_cumprod))
+            lvlb_weights = 0.5 * msnp.sqrt(Tensor(alphas_cumprod)) / (2. * 1 - Tensor(alphas_cumprod))
         else:
             raise NotImplementedError("mu not supported")
         lvlb_weights[0] = lvlb_weights[1]
@@ -192,7 +183,7 @@ class DDPM(nn.Cell):
 
         return loss
 
-    def q_sample(self, x_start, t, noise=None):
+    def q_sample(self, x_start, t, noise):
         return (extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape) * x_start +
                 extract_into_tensor(self.sqrt_one_minus_alphas_cumprod, t, x_start.shape) * noise)
 
@@ -231,7 +222,7 @@ class LatentDiffusion(DDPM):
         if not scale_by_std:
             self.scale_factor = scale_factor
         else:
-            self.register_buffer('scale_factor', ms.Tensor(scale_factor))
+            self.register_buffer('scale_factor', Tensor(scale_factor))
         self.instantiate_first_stage(first_stage_config)
         self.instantiate_cond_stage(cond_stage_config)
         self.cond_stage_forward = cond_stage_forward
@@ -281,43 +272,35 @@ class LatentDiffusion(DDPM):
         c = self.cond_stage_model(c)
         return c
 
-    def decode_first_stage(self, z, predict_cids=False):
+    def decode_first_stage(self, z):
         z = 1. / self.scale_factor * z
         return self.first_stage_model.decode(z)
+    
+    def encode_first_stage(self, x):
+        return self.first_stage_model.encode(x)
 
-    def apply_model(self, x_noisy, t, cond, return_ids=False):
-        x_noisy = ops.cast(x_noisy, self.dtype)
-        cond = ops.cast(cond, self.dtype)
+    def get_first_stage_encoding(self, z):
+        return self.scale_factor * z
 
-        if isinstance(cond, dict):
-            # hybrid case, cond is expected to be a dict
-            pass
-        else:
-            key = 'c_concat' if self.model.conditioning_key == 'concat' else 'c_crossattn'
-            cond = {key: cond}
-        x_recon = self.model(x_noisy, t, **cond)
-
-        if isinstance(x_recon, tuple) and not return_ids:
-            return x_recon[0]
-        else:
-            return x_recon
+    def apply_model(self, x_noisy, t, c_concat=None, c_crossattn=None, return_ids=False):
+        x_recon = self.model(x_noisy, t, c_concat, c_crossattn)
+        return x_recon
 
     def get_input(self, x, c):
         if len(x.shape) == 3:
             x = x[..., None]
         x = self.transpose(x, (0, 3, 1, 2))
-        z = ops.stop_gradient(self.scale_factor * self.first_stage_model.encode(x))
-
+        z = ops.stop_gradient(self.get_first_stage_encoding(self.encode_first_stage(x)))
         return z, c
 
     def construct(self, x, c):
-        t = self.uniform_int((x.shape[0],), ms.Tensor(0, dtype=ms.int32), ms.Tensor(self.num_timesteps, dtype=ms.int32))
+        t = self.uniform_int((x.shape[0],), Tensor(0, dtype=mstype.int32), Tensor(self.num_timesteps, dtype=mstype.int32))
         x, c = self.get_input(x, c)
         c = self.get_learned_conditioning_fortrain(c)
         return self.p_losses(x, c, t)
 
     def p_losses(self, x_start, cond, t, noise=None):
-        noise = ms.numpy.randn(x_start.shape)
+        noise = msnp.randn(x_start.shape)
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
         model_output = self.apply_model(x_noisy, t, cond)
 
@@ -347,9 +330,25 @@ class DiffusionWrapper(nn.Cell):
         self.diffusion_model = instantiate_from_config(diff_model_config)
         self.conditioning_key = conditioning_key
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
-        
-    def construct(self, x, t, c_crossattn):
-        out = self.diffusion_model(x, t, context=c_crossattn)
+
+    def construct(self, x, t, c_concat=None, c_crossattn=None):
+        if self.conditioning_key is None:
+            out = self.diffusion_model(x, t)
+        elif self.conditioning_key == 'concat':
+            x_concat = ops.concat((x, c_concat), axis=1)
+            out = self.diffusion_model(x_concat, t)
+        elif self.conditioning_key == 'crossattn':
+            context = c_crossattn
+            out = self.diffusion_model(x, t, context=context)
+        elif self.conditioning_key == 'hybrid':
+            x_concat = ops.concat((x, c_concat), axis=1)
+            context = c_crossattn
+            out = self.diffusion_model(x_concat, t, context=context)
+        elif self.conditioning_key == 'adm':
+            cc = c_crossattn
+            out = self.diffusion_model(x, t, y=cc)
+        else:
+            raise NotImplementedError()
 
         return out
 
@@ -390,7 +389,7 @@ class LatentDiffusionDB(DDPM):
         if not scale_by_std:
             self.scale_factor = scale_factor
         else:
-            self.register_buffer('scale_factor', ms.Tensor(scale_factor))
+            self.register_buffer('scale_factor', Tensor(scale_factor))
         self.instantiate_first_stage(first_stage_config)
         self.instantiate_cond_stage(cond_stage_config)
         self.cond_stage_forward = cond_stage_forward
@@ -440,7 +439,7 @@ class LatentDiffusionDB(DDPM):
         c = self.cond_stage_model(c)
         return c
 
-    def decode_first_stage(self, z, predict_cids=False):
+    def decode_first_stage(self, z):
         z = 1. / self.scale_factor * z
         return self.first_stage_model.decode(z)
 
@@ -471,7 +470,7 @@ class LatentDiffusionDB(DDPM):
 
     def shared_step(self, x, c):
         x, c = self.get_input(x, c)
-        t = self.uniform_int((x.shape[0],), ms.Tensor(0, dtype=ms.int32), ms.Tensor(self.num_timesteps, dtype=ms.int32))
+        t = self.uniform_int((x.shape[0],), Tensor(0, dtype=mstype.int32), Tensor(self.num_timesteps, dtype=mstype.int32))
         c = self.get_learned_conditioning_fortrain(c)
         loss = self.p_losses(x, c, t)
         return loss
@@ -483,7 +482,7 @@ class LatentDiffusionDB(DDPM):
         return loss
 
     def p_losses(self, x_start, cond, t, noise=None):
-        noise = ms.numpy.randn(x_start.shape)
+        noise = msnp.randn(x_start.shape)
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
         model_output = self.apply_model(x_noisy, t, cond)
 
@@ -505,3 +504,18 @@ class LatentDiffusionDB(DDPM):
         loss += (self.original_elbo_weight * loss_vlb)
         
         return loss
+
+class LatentInpaintDiffusion(LatentDiffusion):
+    def __init__(
+        self,
+        concat_keys=("mask", "masked_image"),
+        masked_image_key="masked_image",
+        finetune_keys=None,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.masked_image_key = masked_image_key
+        assert self.masked_image_key in concat_keys
+        self.concat_keys = concat_keys
+

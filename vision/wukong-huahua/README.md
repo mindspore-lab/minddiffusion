@@ -49,7 +49,7 @@ Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺�
 
 下载Wukong-Huahua预训练参数 [wukong-huahua-ms.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/wukong-huahua-ms.ckpt) 至 wukong-huahua/models/ 目录.
 
-对于微调任务，我们提供了示例数据来展示格式，点击[这里](https://opt-release.obs.cn-central-221.ovaijisuan.com:443/wukonghuahua/dataset.tar.gz)下载.
+对于微调任务，我们提供了示例数据来展示格式，点击[这里](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/dataset.tar.gz)下载.
 
 #### 推理生成
 
@@ -62,7 +62,7 @@ python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --ckpt_name [ckp
 ```
 或者
 ```shell
-bash scripts/infer.sh
+bash scripts/run_txt2img.sh
 ```
 
 更高的分辨率需要更大的显存. 对于 Ascend 910 芯片, 我们可以同时生成2张1024x768的图片或者16张512x512的图片。
@@ -85,8 +85,6 @@ bash scripts/run_train.sh
 bash scripts/run_train_parallel.sh [DEVICE_NUM] [VISIABLE_DEVICES(0,1,2,3,4,5,6,7)] [RANK_TABLE_FILE]
 ```
 
-
-
 ### 任务二：个性化文生图任务
 
 能够基于3-5张同一主体的照片，经过25-35分钟的个性化微调，得到该主体定制化的图片生成模型。
@@ -94,8 +92,6 @@ bash scripts/run_train_parallel.sh [DEVICE_NUM] [VISIABLE_DEVICES(0,1,2,3,4,5,6,
 训练数据：
 
 ![个性化训练数据-猫](demo/个性化训练数据-猫.jpg)
-
-
 
 效果展示,生成各种风格的主体图片：
 
@@ -105,7 +101,7 @@ bash scripts/run_train_parallel.sh [DEVICE_NUM] [VISIABLE_DEVICES(0,1,2,3,4,5,6,
 
 1. 下载Wukong-Huahua预训练参数 [wukong-huahua-ms.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/wukong-huahua-ms.ckpt) 至 wukong-huahua/models/ 目录
 2. 训练数据，3-5张同一主体的照片（训练照片规格为512*512，尽量选取单一干净的背景，主体突出）
-3. 准备正则数据200张。如训练主体为狗，则需准备200张各种其他狗的图片，这些图片可以通过通用模型生成，也可以手动收集。提供了男人、女人、狗、猫四个类别的正则数据各200张。点击[这里](https://opt-release.obs.cn-central-221.ovaijisuan.com:443/wkhh-db/dataset/reg_data.rar)下载
+3. 准备正则数据200张。如训练主体为狗，则需准备200张各种其他狗的图片，这些图片可以通过通用模型生成，也可以手动收集。提供了男人、女人、狗、猫四个类别的正则数据各200张。点击[这里](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/reg_data.rar)下载
 
 #### 个性化微调
 
@@ -123,3 +119,20 @@ bash scripts/run_db_train.sh
 bash scripts/infer.sh
 ```
 
+### 任务三：图像编辑任务
+
+### 准备checkpoint
+
+下载Wukong-Huahua预训练参数 [wukong-huahua-inpaint-ms.ckpt](https://download.mindspore.cn/toolkits/minddiffusion/wukong-huahua/wukong-huahua-inpaint-ms.ckpt) 至 wukong-huahua/models/ 目录
+
+#### 推理生成
+
+要进行图像编辑，可以运行 inpaint.py 或者直接使用默认参数运行 run_inpaint.sh.
+
+```shell
+python inpaint.py --prompt [prompt] --img [origin image path] --mask [mask image path]
+```
+或者
+```shell
+bash scripts/run_inpaint.sh
+```
