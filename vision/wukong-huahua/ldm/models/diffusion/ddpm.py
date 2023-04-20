@@ -302,8 +302,10 @@ class LatentDiffusion(DDPM):
     def p_losses(self, x_start, cond, t, noise=None):
         noise = msnp.randn(x_start.shape)
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
-        model_output = self.apply_model(x_noisy, t, cond)
-
+        model_output = self.apply_model(x_noisy, t,
+                                        c_concat=cond if self.model.conditioning_key == 'concat' else None,
+                                        c_crossattn=cond if self.model.conditioning_key == 'crossattn' else None)
+        
         if self.parameterization == "x0":
             target = x_start
         elif self.parameterization == "eps":
@@ -484,7 +486,9 @@ class LatentDiffusionDB(DDPM):
     def p_losses(self, x_start, cond, t, noise=None):
         noise = msnp.randn(x_start.shape)
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
-        model_output = self.apply_model(x_noisy, t, cond)
+        model_output = self.apply_model(x_noisy, t,
+                                        c_concat=cond if self.model.conditioning_key == 'concat' else None,
+                                        c_crossattn=cond if self.model.conditioning_key == 'crossattn' else None)
 
         if self.parameterization == "x0":
             target = x_start
@@ -518,4 +522,3 @@ class LatentInpaintDiffusion(LatentDiffusion):
         self.masked_image_key = masked_image_key
         assert self.masked_image_key in concat_keys
         self.concat_keys = concat_keys
-
