@@ -20,12 +20,12 @@ export ASCEND_GLOBAL_LOG_LEVEL=3
 export ASCEND_SLOG_PRINT_TO_STDOUT=0
 device_id=3
 
-output_path=/mnt/liuqiyuan/output
+output_path=output
 task_name=α猫
 train_data_path=dataset/train_cat
 reg_data_path=dataset/reg_cat
 class_word=猫
-pretrained_model_path=/mnt/liuqiyuan/wkhh_models
+pretrained_model_path=models
 train_config_file=configs/train_db_config.json
 token=α
 

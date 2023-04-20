@@ -184,7 +184,7 @@ class PLMSSampler():
         
         def get_model_output(x, t):
             if unconditional_conditioning is None or unconditional_guidance_scale == 1.:
-                e_t = self.model.apply_model(x, t, c)
+                e_t = self.model.apply_model(x, t, c_crossattn=c)
             else:
                 x_in = ops.concat((x, x), axis=0)
                 t_in = ops.concat((t, t), axis=0)
