@@ -136,3 +136,7 @@ python inpaint.py --prompt [prompt] --img [origin image path] --mask [mask image
 ```shell
 bash scripts/run_inpaint.sh
 ```
+
+### 效果展示
+从左到右依次为原图、mask图、生成的4张图片
+![图像编辑效果-猫](demo/inpaint/一只红色的狐狸坐在长椅上.png)
