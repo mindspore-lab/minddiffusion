@@ -21,12 +21,6 @@ from mindspore import dtype as mstype, numpy as msnp, nn, ops, Tensor, Parameter
 from ldm.util import exists, default, instantiate_from_config, extract_into_tensor
 from ldm.modules.diffusionmodules.util import make_beta_schedule
 
-def disabled_train(self, mode=True):
-    """Overwrite model.set_train with this function to make sure train/eval mode
-    does not change anymore."""
-    self.set_train(False)
-    return self
-
 class DDPM(nn.Cell):
     # classic DDPM with Gaussian diffusion, in image space
     def __init__(self,
@@ -228,15 +222,12 @@ class LatentDiffusion(DDPM):
         self.cond_stage_forward = cond_stage_forward
         self.clip_denoised = False
         self.bbox_tokenizer = None
-        self.uniform_int = ops.UniformInt()
 
         self.restarted_from_ckpt = False
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys)
             self.restarted_from_ckpt = True
         
-        self.transpose = ops.Transpose()
-
     def register_schedule(self,
                           given_betas=None, beta_schedule="linear", timesteps=1000,
                           linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):
@@ -282,19 +273,19 @@ class LatentDiffusion(DDPM):
     def get_first_stage_encoding(self, z):
         return self.scale_factor * z
 
-    def apply_model(self, x_noisy, t, c_concat=None, c_crossattn=None, return_ids=False):
+    def apply_model(self, x_noisy, t, c_concat=None, c_crossattn=None):
         x_recon = self.model(x_noisy, t, c_concat, c_crossattn)
         return x_recon
 
     def get_input(self, x, c):
         if len(x.shape) == 3:
             x = x[..., None]
-        x = self.transpose(x, (0, 3, 1, 2))
+        x = ops.transpose(x, (0, 3, 1, 2))
         z = ops.stop_gradient(self.get_first_stage_encoding(self.encode_first_stage(x)))
         return z, c
 
     def construct(self, x, c):
-        t = self.uniform_int((x.shape[0],), Tensor(0, dtype=mstype.int32), Tensor(self.num_timesteps, dtype=mstype.int32))
+        t = ops.UniformInt()((x.shape[0],), Tensor(0, dtype=mstype.int32), Tensor(self.num_timesteps, dtype=mstype.int32))
         x, c = self.get_input(x, c)
         c = self.get_learned_conditioning_fortrain(c)
         return self.p_losses(x, c, t)
@@ -325,6 +316,39 @@ class LatentDiffusion(DDPM):
         
         return loss
 
+class LatentDiffusionDB(LatentDiffusion):
+    def __init__(self,
+                 reg_weight = 1.0,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reg_weight = reg_weight
+
+    def shared_step(self, x, c):
+        x, c = self.get_input(x, c)
+        t = ops.UniformInt()((x.shape[0],), Tensor(0, dtype=mstype.int32), Tensor(self.num_timesteps, dtype=mstype.int32))
+        c = self.get_learned_conditioning_fortrain(c)
+        loss = self.p_losses(x, c, t)
+        return loss
+        
+    def construct(self, train_x, train_c, reg_x, reg_c):
+        loss_train = self.shared_step(train_x, train_c)
+        loss_reg = self.shared_step(reg_x, reg_c)
+        loss = loss_train + self.reg_weight * loss_reg
+        return loss
+
+class LatentInpaintDiffusion(LatentDiffusion):
+    def __init__(
+        self,
+        concat_keys=("mask", "masked_image"),
+        masked_image_key="masked_image",
+        finetune_keys=None,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.masked_image_key = masked_image_key
+        assert self.masked_image_key in concat_keys
+        self.concat_keys = concat_keys
 
 class DiffusionWrapper(nn.Cell):
     def __init__(self, diff_model_config, conditioning_key):
@@ -353,170 +377,3 @@ class DiffusionWrapper(nn.Cell):
             raise NotImplementedError()
 
         return out
-
-
-class LatentDiffusionDB(DDPM):
-    """main class"""
-
-    def __init__(self,
-                 first_stage_config,
-                 cond_stage_config,
-                 num_timesteps_cond=None,
-                 cond_stage_key="image",
-                 cond_stage_trainable=False,
-                 concat_mode=True,
-                 cond_stage_forward=None,
-                 conditioning_key=None,
-                 scale_factor=1.0,
-                 scale_by_std=False,
-                 reg_weight = 1.0,
-                 *args, **kwargs):
-        self.num_timesteps_cond = default(num_timesteps_cond, 1)
-        self.scale_by_std = scale_by_std
-        if conditioning_key is None:
-            conditioning_key = 'concat' if concat_mode else 'crossattn'
-        if cond_stage_config == '__is_unconditional__':
-            conditioning_key = None
-        ckpt_path = kwargs.pop("ckpt_path", None)
-        ignore_keys = kwargs.pop("ignore_keys", [])
-        super().__init__(conditioning_key=conditioning_key, *args, **kwargs)
-        self.concat_mode = concat_mode
-        self.cond_stage_trainable = cond_stage_trainable
-        self.cond_stage_key = cond_stage_key
-        self.reg_weight = reg_weight
-        try:
-            self.num_downs = len(first_stage_config.params.ddconfig.ch_mult) - 1
-        except:
-            self.num_downs = 0
-        if not scale_by_std:
-            self.scale_factor = scale_factor
-        else:
-            self.register_buffer('scale_factor', Tensor(scale_factor))
-        self.instantiate_first_stage(first_stage_config)
-        self.instantiate_cond_stage(cond_stage_config)
-        self.cond_stage_forward = cond_stage_forward
-        self.clip_denoised = False
-        self.bbox_tokenizer = None
-        self.uniform_int = ops.UniformInt()
-
-        self.restarted_from_ckpt = False
-        if ckpt_path is not None:
-            self.init_from_ckpt(ckpt_path, ignore_keys)
-            self.restarted_from_ckpt = True
-        
-        self.transpose = ops.Transpose()
-
-    def register_schedule(self,
-                          given_betas=None, beta_schedule="linear", timesteps=1000,
-                          linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):
-        super().register_schedule(given_betas, beta_schedule, timesteps, linear_start, linear_end, cosine_s)
-
-        self.shorten_cond_schedule = self.num_timesteps_cond > 1
-
-    def instantiate_first_stage(self, config):
-        model = instantiate_from_config(config)
-        self.first_stage_model = model
-        for param in self.first_stage_model.get_parameters():
-            param.requires_grad = False
-
-    def instantiate_cond_stage(self, config):
-        if not self.cond_stage_trainable:
-            model = instantiate_from_config(config)
-            self.cond_stage_model = model
-        else:
-            assert config != '__is_first_stage__'
-            assert config != '__is_unconditional__'
-            model = instantiate_from_config(config)
-            self.cond_stage_model = model
-
-    def get_learned_conditioning(self, c):
-        if self.cond_stage_forward is None:
-            c = self.cond_stage_model.encode(c)
-        else:
-            assert hasattr(self.cond_stage_model, self.cond_stage_forward)
-            c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
-        return c
-    
-    def get_learned_conditioning_fortrain(self, c):
-        c = self.cond_stage_model(c)
-        return c
-
-    def decode_first_stage(self, z):
-        z = 1. / self.scale_factor * z
-        return self.first_stage_model.decode(z)
-
-    def apply_model(self, x_noisy, t, cond, return_ids=False):
-        x_noisy = ops.cast(x_noisy, self.dtype)
-        cond = ops.cast(cond, self.dtype)
-
-        if isinstance(cond, dict):
-            # hybrid case, cond is expected to be a dict
-            pass
-        else:
-            key = 'c_concat' if self.model.conditioning_key == 'concat' else 'c_crossattn'
-            cond = {key: cond}
-        x_recon = self.model(x_noisy, t, **cond)
-
-        if isinstance(x_recon, tuple) and not return_ids:
-            return x_recon[0]
-        else:
-            return x_recon
-
-    def get_input(self, x, c):
-        if len(x.shape) == 3:
-            x = x[..., None]
-        x = self.transpose(x, (0, 3, 1, 2))
-        z = ops.stop_gradient(self.scale_factor * self.first_stage_model.encode(x))
-
-        return z, c
-
-    def shared_step(self, x, c):
-        x, c = self.get_input(x, c)
-        t = self.uniform_int((x.shape[0],), Tensor(0, dtype=mstype.int32), Tensor(self.num_timesteps, dtype=mstype.int32))
-        c = self.get_learned_conditioning_fortrain(c)
-        loss = self.p_losses(x, c, t)
-        return loss
-        
-    def construct(self, train_x, train_c, reg_x, reg_c):
-        loss_train = self.shared_step(train_x, train_c)
-        loss_reg = self.shared_step(reg_x, reg_c)
-        loss = loss_train + self.reg_weight * loss_reg
-        return loss
-
-    def p_losses(self, x_start, cond, t, noise=None):
-        noise = msnp.randn(x_start.shape)
-        x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
-        model_output = self.apply_model(x_noisy, t, cond)
-
-        if self.parameterization == "x0":
-            target = x_start
-        elif self.parameterization == "eps":
-            target = noise
-        else:
-            raise NotImplementedError()
-
-        loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
-
-        logvar_t = self.logvar[t]
-        loss = loss_simple / ops.exp(logvar_t) + logvar_t
-        loss = self.l_simple_weight * loss.mean()
-
-        loss_vlb = self.get_loss(model_output, target, mean=False).mean((1, 2, 3))
-        loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
-        loss += (self.original_elbo_weight * loss_vlb)
-        
-        return loss
-
-class LatentInpaintDiffusion(LatentDiffusion):
-    def __init__(
-        self,
-        concat_keys=("mask", "masked_image"),
-        masked_image_key="masked_image",
-        finetune_keys=None,
-        *args,
-        **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
-        self.masked_image_key = masked_image_key
-        assert self.masked_image_key in concat_keys
-        self.concat_keys = concat_keys
