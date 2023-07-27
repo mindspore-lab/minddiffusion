@@ -299,6 +299,9 @@ class UNetModel(nn.Cell):
         context_dim=None,                 # custom transformer support
         n_embed=None,                     # custom support for prediction of discrete ids into codebook of first stage vq model
         legacy=True,
+        enable_lora=False,
+        lora_rank=4,
+        lora_alpha=4
     ):
         super().__init__()
 
@@ -389,7 +392,8 @@ class UNetModel(nn.Cell):
                             use_new_attention_order=use_new_attention_order,
                         ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim,
-                            use_checkpoint=use_checkpoint, dtype=self.dtype, dropout=self.dropout
+                            use_checkpoint=use_checkpoint, dtype=self.dtype, dropout=self.dropout,
+                            enable_lora=enable_lora, lora_rank=lora_rank, lora_alpha=lora_alpha
                         )
                     )
                 self.input_blocks.append(layers)
@@ -445,7 +449,8 @@ class UNetModel(nn.Cell):
                         use_new_attention_order=use_new_attention_order,
                     ) if not use_spatial_transformer else SpatialTransformer(
                                     ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim,
-                                    use_checkpoint=use_checkpoint, dtype=self.dtype, dropout=self.dropout
+                                    use_checkpoint=use_checkpoint, dtype=self.dtype, dropout=self.dropout,
+                                    enable_lora=enable_lora, lora_rank=lora_rank, lora_alpha=lora_alpha
                                 ),
                     ResBlock(
                         ch,
@@ -494,7 +499,8 @@ class UNetModel(nn.Cell):
                             use_new_attention_order=use_new_attention_order,
                         ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim,
-                            use_checkpoint=use_checkpoint, dtype=self.dtype, dropout=self.dropout
+                            use_checkpoint=use_checkpoint, dtype=self.dtype, dropout=self.dropout,
+                            enable_lora=enable_lora, lora_rank=lora_rank, lora_alpha=lora_alpha
                         )
                     )
                 if level and i == num_res_blocks:

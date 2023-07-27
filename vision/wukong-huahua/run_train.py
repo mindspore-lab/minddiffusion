@@ -168,11 +168,16 @@ def main(opts):
     pretrained_ckpt = os.path.join(opts.pretrained_model_path, opts.pretrained_model_file)
     load_pretrained_model(pretrained_ckpt, LatentDiffusionWithLoss)
 
+    if opts.enable_lora:
+        from tk.graph import freeze_delta
+        # 适配lora算法后，冻结lora模块之外的参数
+        freeze_delta(LatentDiffusionWithLoss, 'lora')
+
     if not opts.decay_steps:
         dataset_size = dataset.get_dataset_size()
         opts.decay_steps = opts.epochs * dataset_size
     lr = LearningRate(opts.start_learning_rate, opts.end_learning_rate, opts.warmup_steps, opts.decay_steps)
-    optimizer = build_optimizer(LatentDiffusionWithLoss, opts, lr)
+    optimizer = build_optimizer(LatentDiffusionWithLoss, opts, lr, enable_lora=opts.enable_lora)
     update_cell = DynamicLossScaleUpdateCell(loss_scale_value=opts.init_loss_scale,
                                              scale_factor=opts.loss_scale_factor,
                                              scale_window=opts.scale_window)
@@ -196,12 +201,25 @@ def main(opts):
         ckpt_dir = os.path.join(opts.output_path, "ckpt", f"rank_{str(rank_id)}")
         if not os.path.exists(ckpt_dir):
             os.makedirs(ckpt_dir) 
-        config_ck = CheckpointConfig(save_checkpoint_steps=opts.save_checkpoint_steps,
-                                     keep_checkpoint_max=10,
-                                     integrated_save=False)
-        ckpoint_cb = ModelCheckpoint(prefix="wkhh_txt2img",
-                                     directory=ckpt_dir,
-                                     config=config_ck)
+
+        if not opts.enable_lora:
+            config_ck = CheckpointConfig(save_checkpoint_steps=opts.save_checkpoint_steps,
+                                         keep_checkpoint_max=10,
+                                         integrated_save=False)
+            ckpoint_cb = ModelCheckpoint(prefix="wkhh_txt2img",
+                                         directory=ckpt_dir,
+                                         config=config_ck)
+        else:
+            from tk.graph.ckpt_util import TrainableParamsCheckPoint
+
+            config_ck = CheckpointConfig(save_checkpoint_steps=opts.save_checkpoint_steps,
+                                         keep_checkpoint_max=10,
+                                         integrated_save=False,
+                                         saved_network=LatentDiffusionWithLoss)
+            ckpoint_cb = TrainableParamsCheckPoint(prefix="wkhh_txt2img_lora",
+                                         directory=ckpt_dir,
+                                         config=config_ck)
+
         callback.append(ckpoint_cb)
 
     print("start_training...")
@@ -236,6 +254,8 @@ if __name__ == "__main__":
     parser.add_argument('--filter_small_size', default=True, type=str2bool, help='filter small images')
     parser.add_argument('--image_size', default=512, type=int, help='images size')
     parser.add_argument('--image_filter_size', default=256, type=int, help='image filter size')
+
+    parser.add_argument('--enable_lora', default=False, type=str2bool, help='enable lora')
     
     args = parser.parse_args()
     args = parse_with_config(args)

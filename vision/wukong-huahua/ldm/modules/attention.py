@@ -94,7 +94,8 @@ class LinearAttention(nn.Cell):
 
 
 class CrossAttention(nn.Cell):
-    def __init__(self, query_dim, context_dim=None, heads=8, dim_head=64, dropout=1.0, dtype=ms.float32):
+    def __init__(self, query_dim, context_dim=None, heads=8, dim_head=64, dropout=1.0, dtype=ms.float32,
+                 enable_lora=False, lora_rank=4, lora_alpha=4):
         super().__init__()
         inner_dim = dim_head * heads
         context_dim = default(context_dim, query_dim)
@@ -105,13 +106,25 @@ class CrossAttention(nn.Cell):
         self.reshape = ops.Reshape()
         self.softmax = ops.Softmax(axis=-1)
         self.transpose = ops.Transpose()
-        self.to_q = nn.Dense(query_dim, inner_dim, has_bias=False).to_float(dtype)
-        self.to_k = nn.Dense(context_dim, inner_dim, has_bias=False).to_float(dtype)
-        self.to_v = nn.Dense(context_dim, inner_dim, has_bias=False).to_float(dtype)
-        self.to_out = nn.SequentialCell(
-            nn.Dense(inner_dim, query_dim).to_float(dtype),
-            nn.Dropout(dropout)
-        )
+        if not enable_lora:
+            self.to_q = nn.Dense(query_dim, inner_dim, has_bias=False).to_float(dtype)
+            self.to_k = nn.Dense(context_dim, inner_dim, has_bias=False).to_float(dtype)
+            self.to_v = nn.Dense(context_dim, inner_dim, has_bias=False).to_float(dtype)
+            self.to_out = nn.SequentialCell(
+                nn.Dense(inner_dim, query_dim).to_float(dtype),
+                nn.Dropout(dropout)
+            )
+        else:
+            from tk.delta import LoRADense
+
+            self.to_q = LoRADense(query_dim, inner_dim, has_bias=False, lora_rank=lora_rank, lora_alpha=lora_alpha).to_float(dtype)
+            self.to_v = LoRADense(context_dim, inner_dim, has_bias=False, lora_rank=lora_rank, lora_alpha=lora_alpha).to_float(dtype)
+            self.to_k = LoRADense(context_dim, inner_dim, has_bias=False, lora_rank=lora_rank, lora_alpha=lora_alpha).to_float(dtype)
+
+            self.to_out = nn.SequentialCell(
+                LoRADense(inner_dim, query_dim, lora_rank=lora_rank, lora_alpha=lora_alpha).to_float(dtype),
+                nn.Dropout(dropout)
+            )
 
 
     def construct(self, x, context=None, mask=None):
@@ -167,12 +180,15 @@ class CrossAttention(nn.Cell):
 
 
 class BasicTransformerBlock(nn.Cell):
-    def __init__(self, dim, n_heads, d_head, dropout=1.0, context_dim=None, gated_ff=True, checkpoint=True, dtype=ms.float32):
+    def __init__(self, dim, n_heads, d_head, dropout=1.0, context_dim=None, gated_ff=True, checkpoint=True, dtype=ms.float32,
+                 enable_lora=False, lora_rank=4, lora_alpha=4):
         super().__init__()
-        self.attn1 = CrossAttention(query_dim=dim, heads=n_heads, dim_head=d_head, dropout=dropout, dtype=dtype)  # is a self-attention
+        self.attn1 = CrossAttention(query_dim=dim, heads=n_heads, dim_head=d_head, dropout=dropout, dtype=dtype,
+                                    enable_lora=enable_lora, lora_rank=lora_rank, lora_alpha=lora_alpha)  # is a self-attention
         self.ff = FeedForward(dim, dropout=dropout, glu=gated_ff, dtype=dtype)
         self.attn2 = CrossAttention(query_dim=dim, context_dim=context_dim,
-                                    heads=n_heads, dim_head=d_head, dropout=dropout, dtype=dtype)  # is self-attn if context is none
+                                    heads=n_heads, dim_head=d_head, dropout=dropout, dtype=dtype,
+                                    enable_lora=enable_lora, lora_rank=lora_rank, lora_alpha=lora_alpha)  # is self-attn if context is none
         self.norm1 = nn.LayerNorm([dim], epsilon=1e-05).to_float(dtype)
         self.norm2 = nn.LayerNorm([dim], epsilon=1e-05).to_float(dtype)
         self.norm3 = nn.LayerNorm([dim], epsilon=1e-05).to_float(dtype)
@@ -193,7 +209,8 @@ class SpatialTransformer(nn.Cell):
     Finally, reshape to image
     """
     def __init__(self, in_channels, n_heads, d_head,
-                 depth=1, dropout=1.0, context_dim=None, use_checkpoint=True, dtype=ms.float32):
+                 depth=1, dropout=1.0, context_dim=None, use_checkpoint=True, dtype=ms.float32,
+                 enable_lora=False, lora_rank=4, lora_alpha=4):
         super().__init__()
         self.in_channels = in_channels
         self.dtype=dtype
@@ -209,7 +226,8 @@ class SpatialTransformer(nn.Cell):
                                  pad_mode='pad').to_float(dtype)
         self.transformer_blocks = nn.CellList(
             [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim, 
-                                   checkpoint=use_checkpoint, dtype=self.dtype)
+                                   checkpoint=use_checkpoint, dtype=self.dtype,
+                                   enable_lora=enable_lora, lora_rank=lora_rank, lora_alpha=lora_alpha)
                 for d in range(depth)]
         )
 

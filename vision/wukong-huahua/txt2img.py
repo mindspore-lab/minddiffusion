@@ -49,14 +49,21 @@ def numpy_to_pil(images):
     return pil_images
 
 
+def str2bool(b):
+    if b.lower() not in ["false", "true"]:
+        raise Exception("Invalid Bool Value")
+    if b.lower() in ["false"]:
+        return False
+    return True
+
+
 def load_model_from_config(config, ckpt, verbose=False):
     print(f"Loading model from {ckpt}")
     model = instantiate_from_config(config.model)
     if os.path.exists(ckpt):
         param_dict = ms.load_checkpoint(ckpt)
         if param_dict:
-            param_not_load = ms.load_param_into_net(model, param_dict)
-            print("param not load:", param_not_load)
+            ms.load_param_into_net(model, param_dict)
     else:
         print(f"!!!Warning!!!: {ckpt} doesn't exist")
 
@@ -191,6 +198,8 @@ def main():
         choices=["full", "autocast"],
         default="autocast"
     )
+    parser.add_argument("--enable_lora", default=False, type=str2bool, help="enable lora")
+    parser.add_argument("--lora_ckpt_filepath", type=str, default="models", help="path to checkpoint of model with lora")
     opt = parser.parse_args()
     work_dir = os.path.dirname(os.path.abspath(__file__))
     print(f"WORK DIR:{work_dir}")
@@ -209,6 +218,11 @@ def main():
         opt.config = os.path.join(work_dir, opt.config)
     config = OmegaConf.load(f"{opt.config}")
     model = load_model_from_config(config, f"{os.path.join(opt.ckpt_path, opt.ckpt_name)}")
+
+    if opt.enable_lora:
+        lora_ckpt_path = opt.lora_ckpt_filepath
+        lora_param_dict = ms.load_checkpoint(lora_ckpt_path)
+        ms.load_param_into_net(model, lora_param_dict)
 
     if opt.dpm_solver:
         sampler = DPMSolverSampler(model)
