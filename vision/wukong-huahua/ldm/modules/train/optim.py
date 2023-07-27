@@ -18,7 +18,7 @@
 from mindspore.nn.optim.adam import Adam, AdamWeightDecay
 
 
-def build_optimizer(model, opts, lr):
+def build_optimizer(model, opts, lr, enable_lora=False):
     """
 
     :param model:
@@ -35,11 +35,16 @@ def build_optimizer(model, opts, lr):
         'params': decay_params,
         'weight_decay': 1e-6
     }, {
-        'params': other_params,
-        'weight_decay': 0.0
-    }, {
-        'order_params': param_optimizer
+            'order_params': param_optimizer
     }]
+
+    # 适配lora后，得到的other_params为空，因此无需加入到group_params中
+    if not enable_lora:
+        group_params.append({
+            'params': other_params,
+            'weight_decay': 0.0
+        })
+
     if opts.optim == 'adam':
         OptimCls = Adam
     elif opts.optim == 'adamw':
