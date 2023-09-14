@@ -53,7 +53,7 @@ Wukong-Huahua是基于扩散模型的中文文生图大模型，由**华为诺�
 
 #### 推理生成
 
-要进行文图生成，可以运行txt2img.py 或者直接使用默认参数运行 infer.sh.
+要进行文图生成，可以运行txt2img.py 或者直接使用默认参数运行 run_txt2img.sh.
 
 ```shell
 python txt2img.py --prompt [input text] --ckpt_path [ckpt_path] --ckpt_name [ckpt_name] \
@@ -113,10 +113,10 @@ bash scripts/run_db_train.sh
 
 #### 个性化生成
 
-增加scrpts/run_infer.sh中python脚本入参ckpt_path（微调好的ckpt保存的目录），ckpt_name（微调好的ckpt名称），修改prompt，格式最好为token+class_word+风格，如“α猫 插画风格”、“α猫 素描画风格”
+增加scrpts/run_txt2img.sh中python脚本入参ckpt_path（微调好的ckpt保存的目录），ckpt_name（微调好的ckpt名称），修改prompt，格式最好为token+class_word+风格，如“α猫 插画风格”、“α猫 素描画风格”
 
 ```shell
-bash scripts/infer.sh
+bash scripts/run_txt2img.sh
 ```
 
 ### 任务三：图像编辑任务
